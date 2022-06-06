@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'test_screen.dart';
 import 'request_screen.dart';
+import 'notify_screen.dart';
 
 class LoggedInScreen extends StatefulWidget {
   @override
@@ -86,16 +87,6 @@ class _LoggedInScreenState extends State<LoggedInScreen>
           TestScreen(),
         ],
       ),
-      floatingActionButton: showFab
-          ? FloatingActionButton(
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              child: Icon(
-                Icons.message,
-                color: Colors.white,
-              ),
-              onPressed: () => print("open chats"),
-            )
-          : null,
     );
   }
 }

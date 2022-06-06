@@ -1,33 +1,7 @@
+import 'package:admin_app/notify_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-/* class RequestScreen extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      // This is the theme of your application.
-      theme: ThemeData.dark(),
-      // Scrolling in Flutter behaves differently depending on the
-      // ScrollBehavior. By default, ScrollBehavior changes depending
-      // on the current platform. For the purposes of this scrolling
-      // workshop, we're using a custom ScrollBehavior so that the
-      // experience is the same for everyone - regardless of the
-      // platform they are using.
-      scrollBehavior: const ConstantScrollBehavior(),
-      title: 'Horizons Weather',
-      home: Scaffold(
-        body: Scrollbar(
-            child: CustomScrollView(
-          slivers: <Widget>[
-            WeeklyForecastList(),
-          ],
-        )),
-      ),
-    );
-  }
-} */
 
 class RequestScreen extends StatefulWidget {
   @override
@@ -42,7 +16,7 @@ class _RequestScreen extends State<RequestScreen> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   Map<String, dynamic> mp = {};
-  void _phoneStatus() async {
+  void _getActiverequests() async {
     DatabaseReference _testRef = FirebaseDatabase.instance.ref('uidToPhone');
     Query query = _testRef.orderByChild("request").equalTo(1);
     DataSnapshot event = await query.get();
@@ -61,59 +35,10 @@ class _RequestScreen extends State<RequestScreen> {
     return mp.length;
   }
 
-  /* @override
-  Widget build(BuildContext context) {
-    _phoneStatus();
-    final DateTime currentDate = DateTime.now();
-    final TextTheme textTheme = Theme.of(context).textTheme;
-
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          //final Request dailyForecast = Server.getDailyForecastByID(index);
-          return Card(
-            child: Row(
-              children: <Widget>[
-                SizedBox(
-                  height: 200.0,
-                  width: 200.0,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: <Widget>[],
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          'hi',
-                          style: textTheme.headline4,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'hio',
-                    style: textTheme.subtitle1,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-        childCount: 7,
-      ),
-    );
-  } */
   @override
   Widget build(BuildContext context) {
-    _phoneStatus();
+    BuildContext parentcontext = context;
+    _getActiverequests();
     final DateTime currentDate = DateTime.now();
     final TextTheme textTheme = Theme.of(context).textTheme;
 
@@ -128,7 +53,7 @@ class _RequestScreen extends State<RequestScreen> {
       // experience is the same for everyone - regardless of the
       // platform they are using.
       scrollBehavior: const ConstantScrollBehavior(),
-      title: 'Horizons Weather',
+      title: 'St Judes',
       home: Scaffold(
         body: Scrollbar(
             child: CustomScrollView(
@@ -154,21 +79,25 @@ class _RequestScreen extends State<RequestScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                    Text(
-                                      mp.values.elementAt(index)['name'],
-                                      style: textTheme.headline4,
-                                    ),
-                                  
+                                Text(
+                                  mp.values.elementAt(index)['name'],
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 40),
+                                ),
                               ],
                             ),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            'hio',
-                            style: textTheme.subtitle1,
-                          ),
+                          child: ElevatedButton(
+                              child: const Text('Notify'),
+                              onPressed: () async {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (parentcontext) {
+                                  return ChatRoom(mp.keys.elementAt(index), mp.values.elementAt(index)['name']);
+                                }));
+                              }),
                         ),
                       ],
                     ),
