@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'test_screen.dart';
 import 'request_screen.dart';
 import 'notify_screen.dart';
+import 'uploadstage_request_screen.dart';
 
 class LoggedInScreen extends StatefulWidget {
   @override
@@ -56,10 +57,10 @@ class _LoggedInScreenState extends State<LoggedInScreen>
           indicatorSize: TabBarIndicatorSize.label,
           tabs: <Widget>[
             Tab(
-              text: "Active Requests",
+              text: "Initial Requests",
             ),
             Tab(
-              text: "Counselling",
+              text: "Upload stage Requests",
             ),
           ],
         ),
@@ -84,7 +85,7 @@ class _LoggedInScreenState extends State<LoggedInScreen>
         controller: _tabController,
         children: <Widget>[
           RequestScreen(),
-          TestScreen(),
+          UploadStageScreen(),
         ],
       ),
     );

@@ -5,10 +5,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'flutter_beautiful_popup-1.7.0/lib/main.dart';
 import 'upload_docs_picker.dart';
 
-class RequestScreen extends StatefulWidget {
+class UploadStageScreen extends StatefulWidget {
   @override
-  _RequestScreen createState() {
-    return new _RequestScreen();
+  _UploadStageScreen createState() {
+    return new _UploadStageScreen();
   }
 }
 
@@ -24,7 +24,7 @@ List<String> items = [
   "lnfld"
 ];
 
-class _RequestScreen extends State<RequestScreen> {
+class _UploadStageScreen extends State<UploadStageScreen> {
   //const WeeklyForecastList({Key? key}) : super(key: key);
 
   TextEditingController phoneController = TextEditingController();
@@ -48,7 +48,7 @@ class _RequestScreen extends State<RequestScreen> {
 
     setState(() {
       tmp.forEach((key, value) {
-        if (value["state"] == 1) {
+        if (value["state"] == 2) {
           logs[key] = value['logs'];
           mp[key] = contact[key];
         }
@@ -252,6 +252,18 @@ class _RequestScreen extends State<RequestScreen> {
                                   // bool barrierDismissible = false,
                                   // Widget close,
                                 );
+                              }),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: ElevatedButton(
+                              child: const Text('Verify Documents'),
+                              onPressed: () async {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (parentcontext) {
+                                  return ChatRoom(mp.keys.elementAt(index),
+                                      mp.values.elementAt(index)['name']);
+                                }));
                               }),
                         ),
                       ],
