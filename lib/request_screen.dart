@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'flutter_beautiful_popup-1.7.0/lib/main.dart';
 
-
 class RequestScreen extends StatefulWidget {
   @override
   _RequestScreen createState() {
@@ -12,18 +11,32 @@ class RequestScreen extends StatefulWidget {
   }
 }
 
-List<String> items = ["ey", "hello", "eyaln", "kk", "kvn", ",vv", "kakd", "n,dfn0", "lnfld"];
+List<String> items = [
+  "ey",
+  "hello",
+  "eyaln",
+  "kk",
+  "kvn",
+  ",vv",
+  "kakd",
+  "n,dfn0",
+  "lnfld"
+];
 
 class _RequestScreen extends State<RequestScreen> {
   //const WeeklyForecastList({Key? key}) : super(key: key);
 
   TextEditingController phoneController = TextEditingController();
   TextEditingController nameController = TextEditingController();
+
   Map<String, dynamic> mp = {};
+  Map<String, dynamic> logs = {};
+  List<int> requestLength = [];
   void _getActiverequests() async {
     DatabaseReference _testRef = FirebaseDatabase.instance.ref('uidToPhone');
     Query query = _testRef.orderByChild("request").equalTo(1);
     DataSnapshot event = await query.get();
+
     setState(() {
       if (event.value != null) {
         mp = event.value as Map<String, dynamic>;
@@ -32,11 +45,42 @@ class _RequestScreen extends State<RequestScreen> {
       }); */
       }
     });
-    //print(mp.values.elementAt(0)['name']);
+    List<dynamic> tmp = [];
+    mp.forEach((key, value) async {
+      _testRef = FirebaseDatabase.instance.ref('requests/' + key);
+      DatabaseEvent _event = await _testRef.once();
+      //print(_event.snapshot.value);
+      if (_event.snapshot != null) {
+        tmp = _event.snapshot.value as List<dynamic>;
+      } else {
+        tmp = [];
+      }
+
+      setState(() {
+        requestLength.add(tmp.length);
+        if (tmp.length != 0) {
+          logs[key] = tmp[tmp.length - 1]['logs'];
+          //print(logs[key]);
+        }
+      });
+    });
   }
 
   int getChildCount() {
     return mp.length;
+  }
+
+  void saveLogs(String cat, String amt, String desc, String remark, String uid,
+      int index) async {
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('requests/' + uid);
+
+    _testRef.child((requestLength[index]-1).toString()).child('logs').set({
+      'category': cat,
+      'amount': amt,
+      'description': desc,
+      'remarks': remark
+    });
   }
 
   @override
@@ -109,67 +153,93 @@ class _RequestScreen extends State<RequestScreen> {
                           child: ElevatedButton(
                               child: const Text('Applicant logs'),
                               onPressed: () {
+                                TextEditingController catController =
+                                    TextEditingController();
+                                TextEditingController amtController =
+                                    TextEditingController();
+                                TextEditingController descController =
+                                    TextEditingController();
+                                TextEditingController remarkController =
+                                    TextEditingController();
+
+                                catController.text =
+                                    logs[mp.keys.elementAt(index)]['category'];
+                                amtController.text =
+                                    logs[mp.keys.elementAt(index)]['amount'];
+                                descController.text =
+                                    logs[mp.keys.elementAt(index)]
+                                        ['description'];
+                                remarkController.text =
+                                    logs[mp.keys.elementAt(index)]['remarks'];
+
                                 final popup = BeautifulPopup(
                                   context: context,
                                   template: TemplateTerm,
                                 );
-                                
+
                                 popup.show(
                                   title: mp.values.elementAt(index)['name'] +
                                       '\'s request logs',
                                   content: Scrollbar(
                                       child: SingleChildScrollView(
-                                      child:    Form(  
-                                                child: Column(  
-                                                  crossAxisAlignment: CrossAxisAlignment.start,  
-                                                  children: <Widget>[ 
-                                                    TextFormField(  
-                                                      decoration: const InputDecoration(  
-                                                        icon: const Icon(Icons.category),  
-                                                        hintText: 'Request Category',  
-                                                        labelText: 'Category',  
-                                                      ),  
-                                                    ),  
-                                                    TextFormField(  
-                                                      decoration: const InputDecoration(  
-                                                        icon: const Icon(Icons.currency_rupee),  
-                                                        hintText: 'Requested amount',  
-                                                        labelText: 'Amount',  
-                                                      ),  
-                                                      keyboardType: TextInputType.number
-                                                    ),  
-                                                    TextFormField(  
-                                                      decoration: const InputDecoration(  
-                                                      icon: const Icon(Icons.description),  
-                                                      hintText: 'Description',  
-                                                      labelText: 'Request Description',  
-                                                      ),
-                                                      maxLines: null,  
-                                                     ),
-                                                     TextFormField(  
-                                                      decoration: const InputDecoration(  
-                                                      icon: const Icon(Icons.feedback),  
-                                                      hintText: 'Remarks',  
-                                                      labelText: 'Admin remarks',  
-                                                      ),
-                                                      maxLines: null,  
-                                                     )]
-                                                     )
-                      ))),  
+                                          child: Form(
+                                              child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                        TextFormField(
+                                          decoration: const InputDecoration(
+                                            icon: const Icon(Icons.category),
+                                            hintText: 'Request Category',
+                                            labelText: 'Category',
+                                          ),
+                                          controller: catController,
+                                        ),
+                                        TextFormField(
+                                            decoration: const InputDecoration(
+                                              icon: const Icon(
+                                                  Icons.currency_rupee),
+                                              hintText: 'Requested amount',
+                                              labelText: 'Amount',
+                                            ),
+                                            controller: amtController,
+                                            keyboardType: TextInputType.number),
+                                        TextFormField(
+                                          decoration: const InputDecoration(
+                                            icon: const Icon(Icons.description),
+                                            hintText: 'Description',
+                                            labelText: 'Request Description',
+                                          ),
+                                          controller: descController,
+                                          maxLines: null,
+                                        ),
+                                        TextFormField(
+                                          decoration: const InputDecoration(
+                                            icon: const Icon(Icons.feedback),
+                                            hintText: 'Remarks',
+                                            labelText: 'Admin remarks',
+                                          ),
+                                          controller: remarkController,
+                                          maxLines: null,
+                                        )
+                                      ])))),
                                   close: Text(''),
                                   barrierDismissible: true,
                                   actions: [
                                     popup.button(
-                                        label: 'Close',
-                                        onPressed: () {
-                                          /* Navigator.pop(context);
+                                      label: 'Save',
+                                      onPressed: () {
+                                        /* Navigator.pop(context);
                                           RequestScreen(); */
-                                          Navigator.pushReplacement(context,
-                                    MaterialPageRoute(builder: (parentcontext) {
-                                  return LoggedInScreen();
-                                }));
-                                        },
-                                      ),
+                                        saveLogs(
+                                            catController.text,
+                                            amtController.text,
+                                            descController.text,
+                                            remarkController.text,
+                                            mp.keys.elementAt(index),
+                                            index);
+                                      },
+                                    ),
                                   ],
                                   // bool barrierDismissible = false,
                                   // Widget close,
