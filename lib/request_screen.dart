@@ -1,6 +1,8 @@
+import 'package:admin_app/loggedIn.dart';
 import 'package:admin_app/notify_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'flutter_beautiful_popup-1.7.0/lib/main.dart';
 
 
 class RequestScreen extends StatefulWidget {
@@ -9,6 +11,8 @@ class RequestScreen extends StatefulWidget {
     return new _RequestScreen();
   }
 }
+
+List<String> items = ["ey", "hello", "eyaln", "kk", "kvn", ",vv", "kakd", "n,dfn0", "lnfld"];
 
 class _RequestScreen extends State<RequestScreen> {
   //const WeeklyForecastList({Key? key}) : super(key: key);
@@ -95,8 +99,81 @@ class _RequestScreen extends State<RequestScreen> {
                               onPressed: () async {
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (parentcontext) {
-                                  return ChatRoom(mp.keys.elementAt(index), mp.values.elementAt(index)['name']);
+                                  return ChatRoom(mp.keys.elementAt(index),
+                                      mp.values.elementAt(index)['name']);
                                 }));
+                              }),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: ElevatedButton(
+                              child: const Text('Applicant logs'),
+                              onPressed: () {
+                                final popup = BeautifulPopup(
+                                  context: context,
+                                  template: TemplateTerm,
+                                );
+                                
+                                popup.show(
+                                  title: mp.values.elementAt(index)['name'] +
+                                      '\'s request logs',
+                                  content: Scrollbar(
+                                      child: SingleChildScrollView(
+                                      child:    Form(  
+                                                child: Column(  
+                                                  crossAxisAlignment: CrossAxisAlignment.start,  
+                                                  children: <Widget>[ 
+                                                    TextFormField(  
+                                                      decoration: const InputDecoration(  
+                                                        icon: const Icon(Icons.category),  
+                                                        hintText: 'Request Category',  
+                                                        labelText: 'Category',  
+                                                      ),  
+                                                    ),  
+                                                    TextFormField(  
+                                                      decoration: const InputDecoration(  
+                                                        icon: const Icon(Icons.currency_rupee),  
+                                                        hintText: 'Requested amount',  
+                                                        labelText: 'Amount',  
+                                                      ),  
+                                                      keyboardType: TextInputType.number
+                                                    ),  
+                                                    TextFormField(  
+                                                      decoration: const InputDecoration(  
+                                                      icon: const Icon(Icons.description),  
+                                                      hintText: 'Description',  
+                                                      labelText: 'Request Description',  
+                                                      ),
+                                                      maxLines: null,  
+                                                     ),
+                                                     TextFormField(  
+                                                      decoration: const InputDecoration(  
+                                                      icon: const Icon(Icons.feedback),  
+                                                      hintText: 'Remarks',  
+                                                      labelText: 'Admin remarks',  
+                                                      ),
+                                                      maxLines: null,  
+                                                     )]
+                                                     )
+                      ))),  
+                                  close: Text(''),
+                                  barrierDismissible: true,
+                                  actions: [
+                                    popup.button(
+                                        label: 'Close',
+                                        onPressed: () {
+                                          /* Navigator.pop(context);
+                                          RequestScreen(); */
+                                          Navigator.pushReplacement(context,
+                                    MaterialPageRoute(builder: (parentcontext) {
+                                  return LoggedInScreen();
+                                }));
+                                        },
+                                      ),
+                                  ],
+                                  // bool barrierDismissible = false,
+                                  // Widget close,
+                                );
                               }),
                         ),
                       ],

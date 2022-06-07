@@ -33,9 +33,11 @@ dependencies:
 
 dev_dependencies:
   bubble: ^1.2.1
+  dropdown_formfield: ^0.1.4
   firebase: ^9.0.3
   firebase_auth: ^3.3.19
   firebase_database: ^9.0.15
+  flutter_beautiful_popup: ^1.7.0
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
