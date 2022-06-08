@@ -6,10 +6,11 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'request_screen.dart';
+import 'dart:ui';
 
 class verifyScreen extends StatefulWidget {
   String uid;
-  docPicker(this.uid);
+  verifyScreen(this.uid);
   @override
   _verifyScreen createState() => _verifyScreen();
 }
@@ -33,24 +34,55 @@ List<String> docs = [
 ];
 
 class _verifyScreen extends State<verifyScreen> {
-  List<bool> docChoosen = List.filled(docs.length, false);
-
-  void updateToUploadStage() {
+  Map<String, dynamic> requestedDocs = {};
+  int verifiedDocCount = 0;
+  bool showApproveButton = false;
+  void getRequestedDocs() async {
     DatabaseReference _testRef =
-        FirebaseDatabase.instance.ref('activerequests/' + widget.uid);
-    _testRef.child('state').set(2);
+        FirebaseDatabase.instance.ref('activerequests/' + widget.uid + '/docs');
+    DatabaseEvent _event = await _testRef.once();
+    setState(() {
+      requestedDocs = _event.snapshot.value as Map<String, dynamic>;
+      /* print(requestedDocs.length);*/
+      requestedDocs.forEach((key, value) {
+        if (value['state'] == 2) verifiedDocCount++;
+      });
+      if (verifiedDocCount == requestedDocs.length) showApproveButton = true;
+    });
+  }
 
-    for (var i = 0; i < docChoosen.length; i++) {
-      if (docChoosen[i] == true) {
-        _testRef.child('docs').child(i.toString()).set({"state": 0, "url": ""});
+  void verifyDoc(index) async {
+    DatabaseReference _testRef = FirebaseDatabase.instance.ref(
+        'activerequests/' +
+            widget.uid +
+            '/docs/' +
+            requestedDocs.keys.elementAt(index));
+    _testRef.child("state").set(2);
+    /* setState(() {
+      verifiedDocCount++;
+      if (verifiedDocCount == requestedDocs.length) {
+        showApproveButton = true;
       }
-    }
+    }); */
+  }
+
+  void declineDoc(index) async {
+    DatabaseReference _testRef = FirebaseDatabase.instance.ref(
+        'activerequests/' +
+            widget.uid +
+            '/docs/' +
+            requestedDocs.keys.elementAt(index));
+    _testRef.set({
+      "url": "",
+      "state": 0,
+    });
   }
 
   Widget build(BuildContext context) {
+    getRequestedDocs();
     return Scaffold(
         appBar: AppBar(
-          title: Text('Document Picker'),
+          title: Text('Verify Documents'),
           backgroundColor: Colors.purple,
         ),
         backgroundColor: Color.fromRGBO(255, 224, 178, 1),
@@ -63,47 +95,97 @@ class _verifyScreen extends State<verifyScreen> {
                   child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CheckboxListTile(
-                    autofocus: false,
-                    activeColor: Colors.orange,
-                    checkColor: Colors.black,
-                    selected: docChoosen[index],
-                    value: docChoosen[index],
-                    contentPadding: EdgeInsets.fromLTRB(300, 5, 300, 5),
-                    title: Text(
-                      docs[index],
-                      style: TextStyle(fontSize: 25),
-                    ),
-                    onChanged: (bool? value) {
-                      setState(() {
-                        docChoosen[index] = value!;
-                      });
-                    },
-                  ),
-                  index == docs.length - 1
+                  ListTile(
+                      autofocus: false,
+                      contentPadding: EdgeInsets.fromLTRB(300, 25, 5, 5),
+                      title: Row(
+                        children: <Widget>[
+                          Text(
+                            docs[
+                                int.parse(requestedDocs.keys.elementAt(index))],
+                            style: TextStyle(fontSize: 25),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(800, 5, 5, 5),
+                            child: requestedDocs.values
+                                        .elementAt(index)['state'] ==
+                                    0
+                                ? Text('awaiting upload.....',
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.grey))
+                                : (requestedDocs.values
+                                            .elementAt(index)['state'] ==
+                                        1
+                                    ? (ElevatedButton(
+                                        //style: ButtonStyle(backgroundColor: Colors.green),
+                                        child: const Text('Verify'),
+                                        style: ElevatedButton.styleFrom(
+                                          minimumSize: Size(90, 60),
+                                          primary: Colors.green,
+                                        ),
+                                        onPressed: () async {
+                                          verifyDoc(index);
+                                        }))
+                                    : Text('Verified',
+                                        style: TextStyle(
+                                            fontSize: 20, color: Colors.green))
+                                //Text('hi')
+                                ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+                            child: requestedDocs.values
+                                        .elementAt(index)['state'] ==
+                                    0
+                                ? Text('',
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.grey))
+                                : (requestedDocs.values
+                                            .elementAt(index)['state'] ==
+                                        1
+                                    ? (ElevatedButton(
+                                        //style: ButtonStyle(backgroundColor: Colors.green),
+                                        child: const Text('Decline'),
+                                        style: ElevatedButton.styleFrom(
+                                          minimumSize: Size(90, 60),
+                                          primary: Colors.red,
+                                        ),
+                                        onPressed: () async {
+                                          declineDoc(index);
+                                        }))
+                                    : Icon(
+                                        CupertinoIcons.check_mark_circled_solid,
+                                        color: Colors.green,
+                                      )
+                                //Text('hi')
+                                ),
+                          ),
+                        ],
+                      )),
+                  showApproveButton == true
                       ? Padding(
                           padding: EdgeInsets.all(10),
                           child: ElevatedButton(
                               child: const Text(
-                                'Done',
+                                'Approve Request',
                                 style: TextStyle(fontSize: 23),
                               ),
                               style: ElevatedButton.styleFrom(
-                                minimumSize: Size(90, 60),
+                                minimumSize: Size(70, 60),
                                 primary: Colors.purple,
                               ),
                               onPressed: () async {
-                                updateToUploadStage();
-                                Navigator.pop(context);
+                                //updateToUploadStage();
+                                //Navigator.pop(context);
                               }))
                       : Text(''),
                   Divider(
                     height: 3,
-                  )
+                  ),
                 ],
               ));
             },
-            itemCount: docs.length,
+            itemCount: requestedDocs.length,
           ),
           isAlwaysShown: true,
         ));

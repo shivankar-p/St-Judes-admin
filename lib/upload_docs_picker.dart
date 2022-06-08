@@ -1,3 +1,4 @@
+import 'package:admin_app/uploadstage_request_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
@@ -94,7 +95,9 @@ class _docPicker extends State<docPicker> {
                               ),
                               onPressed: () async {
                                 updateToUploadStage();
-                                Navigator.pop(context);
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                                  return RequestScreen();
+                                }));
                               }))
                       : Text(''),
                   Divider(

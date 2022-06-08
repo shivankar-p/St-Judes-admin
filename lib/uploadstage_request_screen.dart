@@ -1,5 +1,6 @@
 import 'package:admin_app/loggedIn.dart';
 import 'package:admin_app/notify_screen.dart';
+import 'package:admin_app/verifydocs_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'flutter_beautiful_popup-1.7.0/lib/main.dart';
@@ -48,7 +49,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
 
     setState(() {
       tmp.forEach((key, value) {
-        if (value["state"] == 2) {
+        if (value["state"] == 2 || value["state"] == 3) {
           logs[key] = value['logs'];
           mp[key] = contact[key];
         }
@@ -230,24 +231,6 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                                             index);
                                       },
                                     ),
-                                    popup.button(
-                                      label: 'Move to upload stage',
-                                      onPressed: () {
-                                        saveLogs(
-                                            catController.text,
-                                            amtController.text,
-                                            descController.text,
-                                            remarkController.text,
-                                            mp.keys.elementAt(index),
-                                            index);
-
-                                        Navigator.push(context,
-                                            MaterialPageRoute(
-                                                builder: (parentcontext) {
-                                          return docPicker(mp.keys.elementAt(index));
-                                        }));
-                                      },
-                                    ),
                                   ],
                                   // bool barrierDismissible = false,
                                   // Widget close,
@@ -261,8 +244,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                               onPressed: () async {
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (parentcontext) {
-                                  return ChatRoom(mp.keys.elementAt(index),
-                                      mp.values.elementAt(index)['name']);
+                                  return verifyScreen(mp.keys.elementAt(index));
                                 }));
                               }),
                         ),
