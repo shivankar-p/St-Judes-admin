@@ -46,14 +46,16 @@ class _RequestScreen extends State<RequestScreen> {
     Map<String, dynamic> contact = {};
     contact = _event.snapshot.value as Map<String, dynamic>;
 
-    setState(() {
-      tmp.forEach((key, value) {
-        if (value["state"] == 1) {
-          logs[key] = value['logs'];
-          mp[key] = contact[key];
-        }
+    if (mounted) {
+      setState(() {
+        tmp.forEach((key, value) {
+          if (value["state"] == 1) {
+            logs[key] = value['logs'];
+            mp[key] = contact[key];
+          }
+        });
       });
-    });
+    }
   }
 
   int getChildCount() {
@@ -244,7 +246,8 @@ class _RequestScreen extends State<RequestScreen> {
                                         Navigator.push(context,
                                             MaterialPageRoute(
                                                 builder: (parentcontext) {
-                                          return docPicker(mp.keys.elementAt(index));
+                                          return docPicker(
+                                              mp.keys.elementAt(index));
                                         }));
                                       },
                                     ),

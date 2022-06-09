@@ -20,8 +20,8 @@ List<String> docs = [
   "PAN Card",
   "Birth Certificate",
   "Passport",
-  "Passport Size photograph"
-      "Driving License",
+  "Passport Size photograph",
+  "Driving License",
   "Caste Certificate",
   "Voter ID card",
   "Secondary School Certificate/10th",
@@ -33,19 +33,39 @@ List<String> docs = [
   "Diagnosis Reports"
 ];
 
+List<String> dockeys = [
+  "aadhar",
+  "pan",
+  "birth",
+  "Passport",
+  "photo",
+  "license",
+  "caste",
+  "voter",
+  "ssc",
+  "10th",
+  "12th",
+  "bonafide",
+  "reportcard",
+  "prescription",
+  "medical_report"
+];
+
 class _docPicker extends State<docPicker> {
   List<bool> docChoosen = List.filled(docs.length, false);
 
   void updateToUploadStage() {
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests/' + widget.uid);
-    _testRef.child('state').set(2);
+
 
     for (var i = 0; i < docChoosen.length; i++) {
       if (docChoosen[i] == true) {
-        _testRef.child('docs').child(i.toString()).set({"state": 0, "url": ""});
+        _testRef.child('docs').child(dockeys[i]).set({"state": 0, "url": ""});
       }
     }
+    
+    _testRef.child('state').set(2);
   }
 
   Widget build(BuildContext context) {
@@ -95,7 +115,8 @@ class _docPicker extends State<docPicker> {
                               ),
                               onPressed: () async {
                                 updateToUploadStage();
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                                Navigator.pushReplacement(context,
+                                    MaterialPageRoute(builder: (context) {
                                   return RequestScreen();
                                 }));
                               }))
