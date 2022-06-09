@@ -47,14 +47,16 @@ class _UploadStageScreen extends State<UploadStageScreen> {
     Map<String, dynamic> contact = {};
     contact = _event.snapshot.value as Map<String, dynamic>;
 
-    setState(() {
-      tmp.forEach((key, value) {
-        if (value["state"] == 2 || value["state"] == 3) {
-          logs[key] = value['logs'];
-          mp[key] = contact[key];
-        }
+    if (mounted) {
+      setState(() {
+        tmp.forEach((key, value) {
+          if (value["state"] == 2 || value["state"] == 3) {
+            logs[key] = value['logs'];
+            mp[key] = contact[key];
+          }
+        });
       });
-    });
+    }
   }
 
   int getChildCount() {
@@ -243,7 +245,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                               child: const Text('Verify Documents'),
                               onPressed: () async {
                                 Navigator.push(context,
-                                    MaterialPageRoute(builder: (parentcontext) {
+                                    MaterialPageRoute(builder: (context) {
                                   return verifyScreen(mp.keys.elementAt(index));
                                 }));
                               }),

@@ -1,3 +1,4 @@
+import 'package:admin_app/loggedIn.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
@@ -8,6 +9,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'request_screen.dart';
 import 'dart:ui';
 import 'uploadstage_request_screen.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'final_remark_popup.dart';
 
 class verifyScreen extends StatefulWidget {
   String uid;
@@ -78,19 +83,22 @@ class _verifyScreen extends State<verifyScreen> {
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests/' + widget.uid + '/docs');
     DatabaseEvent _event = await _testRef.once();
-    
+
+    /* String url =
+        await FirebaseStorage.instance.ref().child('cat.jpg').getDownloadURL(); */
+    //print(url);
+
     if (mounted) {
       setState(() {
         verifiedDocCount = 0;
         requestedDocs = _event.snapshot.value as Map<String, dynamic>;
-        
+
         requestedDocs.forEach((key, value) {
           if (value != null) {
             if (value['state'] == 2) verifiedDocCount++;
           }
         });
         if (verifiedDocCount == requestedDocs.length) showApproveButton = true;
-        
       });
     }
   }
@@ -118,18 +126,18 @@ class _verifyScreen extends State<verifyScreen> {
     _testRef.child('state').set(2);
   }
 
-  void approveRequest() async {
+  void approveRequest(String finalRemarks) async {
     //set state of active request
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests/' + widget.uid);
     _testRef.child("state").set(4);
+    _testRef.child("close_remarks").set(finalRemarks);
 
     //move to previous Requests
     DatabaseReference _prevRequests =
         FirebaseDatabase.instance.ref('requests/' + widget.uid);
     DatabaseEvent _event = await _prevRequests.once();
     List<dynamic> tmp = [];
-    
 
     DatabaseEvent recentQuery = await _testRef.once();
     if (_event.snapshot.value != null) {
@@ -174,14 +182,27 @@ class _verifyScreen extends State<verifyScreen> {
                   child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ListTile(
-                      autofocus: false,
-                      contentPadding: EdgeInsets.fromLTRB(300, 25, 5, 5),
+                  ExpansionTile(
+                      /* autofocus: false,
+                      contentPadding: EdgeInsets.fromLTRB(300, 25, 5, 5), */
+                      children: [
+                        /* Image.network(
+                            ), */
+                        if (requestedDocs.values.elementAt(index)['url'] == '')
+                          Text('')
+                        else
+                          Image.network(
+                              requestedDocs.values.elementAt(index)['url'])
+                      ],
                       title: Row(
                         children: <Widget>[
-                          Text(
-                            docs[getindex(requestedDocs.keys.elementAt(index))],
+                          Linkify(
+                            text: docs[
+                                getindex(requestedDocs.keys.elementAt(index))],
                             style: TextStyle(fontSize: 25),
+                            onOpen: (link) {
+                              print("opened succesfully ${link.url}");
+                            },
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(800, 5, 5, 5),
@@ -254,11 +275,79 @@ class _verifyScreen extends State<verifyScreen> {
                                 primary: Colors.purple,
                               ),
                               onPressed: () async {
-                                approveRequest();
-                                Navigator.pushReplacement(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return UploadStageScreen();
-                                }));
+                                TextEditingController RemarkController =
+                                    TextEditingController();
+                                return showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: Stack(
+                                          children: <Widget>[
+                                            Positioned(
+                                              right: -40.0,
+                                              top: -40.0,
+                                              child: InkResponse(
+                                                onTap: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: CircleAvatar(
+                                                  child: Icon(Icons.close),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                            Form(
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  Padding(
+                                                    padding:
+                                                        EdgeInsets.all(8.0),
+                                                    child: TextFormField(
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        icon: const Icon(
+                                                            Icons.feedback),
+                                                        hintText:
+                                                            'Enter Request closing remarks',
+                                                        labelText:
+                                                            'Final Remarks',
+                                                      ),
+                                                      controller:
+                                                          RemarkController,
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          primary:
+                                                              Colors.orange,
+                                                        ),
+                                                        child: Text("Submit"),
+                                                        onPressed: () {
+                                                          approveRequest(
+                                                              RemarkController
+                                                                  .text);
+                                                                  
+                                                          Navigator.pop(
+                                                              context); 
+                                                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                                                                return LoggedInScreen();
+                                                              }));
+                                                          
+                                                        }),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    });
                               }))
                       : Text(''),
                   Divider(
