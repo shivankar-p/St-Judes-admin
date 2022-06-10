@@ -75,6 +75,88 @@ class _RequestScreen extends State<RequestScreen> {
     });
   }
 
+  void rejectUpdate(String uid, String finalRemarks) async
+  {
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('activerequests/' + uid);
+    _testRef.child("state").set(-1);
+    _testRef.child("close_remarks").set(finalRemarks);
+
+    //move to previous Requests
+    DatabaseReference _prevRequests =
+        FirebaseDatabase.instance.ref('requests/' + uid);
+    DatabaseEvent _event = await _prevRequests.once();
+    List<dynamic> tmp = [];
+
+    DatabaseEvent recentQuery = await _testRef.once();
+    if (_event.snapshot.value != null) {
+      tmp = _event.snapshot.value as List<dynamic>;
+      _prevRequests
+          .child(tmp.length.toString())
+          .set(recentQuery.snapshot.value);
+    } else {
+      _prevRequests = FirebaseDatabase.instance.ref('requests');
+      _prevRequests
+          .child(uid)
+          .child("0")
+          .set(recentQuery.snapshot.value);
+    }
+  }
+
+  dynamic rejectRequest(String uid) {
+    TextEditingController RemarkController = TextEditingController();
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              content: Stack(children: <Widget>[
+            Positioned(
+              right: -40.0,
+              top: -40.0,
+              child: InkResponse(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: CircleAvatar(
+                  child: Icon(Icons.close),
+                  backgroundColor: Colors.red,
+                ),
+              ),
+            ),
+            Form(
+                child:
+                    Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    icon: const Icon(Icons.feedback),
+                    hintText: 'Enter Request closing remarks',
+                    labelText: 'Final Remarks',
+                  ),
+                  controller: RemarkController,
+                ),
+              ),
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.orange,
+                      ),
+                      child: Text("Submit"),
+                      onPressed: () {
+                        rejectUpdate(uid, RemarkController.text);
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (context) {
+                          return LoggedInScreen();
+                        }));
+                      }))
+            ]))
+          ]));
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     BuildContext parentcontext = context;
@@ -138,6 +220,14 @@ class _RequestScreen extends State<RequestScreen> {
                                   return ChatRoom(mp.keys.elementAt(index),
                                       mp.values.elementAt(index)['name']);
                                 }));
+                              }),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: ElevatedButton(
+                              child: const Text('Reject'),
+                              onPressed: () async {
+                                rejectRequest(mp.keys.elementAt(index));
                               }),
                         ),
                         Padding(
