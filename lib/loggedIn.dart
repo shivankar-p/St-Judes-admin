@@ -4,6 +4,8 @@ import 'test_screen.dart';
 import 'request_screen.dart';
 import 'notify_screen.dart';
 import 'uploadstage_request_screen.dart';
+import 'queries.dart';
+
 
 class LoggedInScreen extends StatefulWidget {
   @override
@@ -27,7 +29,7 @@ class _LoggedInScreenState extends State<LoggedInScreen>
   void initState() {
     super.initState();
 
-    _tabController = TabController(vsync: this, initialIndex: 0, length: 2);
+    _tabController = TabController(vsync: this, initialIndex: 0, length: 3);
     _tabController.addListener(() {
       showFab = true;
       setState(() {});
@@ -62,6 +64,9 @@ class _LoggedInScreenState extends State<LoggedInScreen>
             Tab(
               text: "Upload stage Requests",
             ),
+            Tab(
+              text: "Queries",
+            ),
           ],
         ),
         actions: <Widget>[
@@ -86,6 +91,8 @@ class _LoggedInScreenState extends State<LoggedInScreen>
         children: <Widget>[
           RequestScreen(),
           UploadStageScreen(),
+          QueriesScreen()
+
         ],
       ),
     );

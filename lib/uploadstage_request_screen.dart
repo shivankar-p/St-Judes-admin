@@ -13,17 +13,6 @@ class UploadStageScreen extends StatefulWidget {
   }
 }
 
-List<String> items = [
-  "ey",
-  "hello",
-  "eyaln",
-  "kk",
-  "kvn",
-  ",vv",
-  "kakd",
-  "n,dfn0",
-  "lnfld"
-];
 
 class _UploadStageScreen extends State<UploadStageScreen> {
   //const WeeklyForecastList({Key? key}) : super(key: key);
@@ -34,6 +23,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
   Map<String, dynamic> mp = {};
   Map<String, dynamic> logs = {};
   List<int> requestLength = [];
+  List<String> prevrequestLength = List.filled(100000, '0');
   void _getActiverequests() async {
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests');
@@ -56,6 +46,22 @@ class _UploadStageScreen extends State<UploadStageScreen> {
           }
         });
       });
+
+      int cnt = 0;
+      mp.forEach((key, value) async {
+        DatabaseReference _testRef =
+            FirebaseDatabase.instance.ref('requests/' + key);
+        DatabaseEvent _event = await _testRef.once();
+        if (_event.snapshot.value != null) {
+          List<dynamic> lst = _event.snapshot.value as List<dynamic>;
+          if (mounted) {
+            setState(() {
+              prevrequestLength[cnt] = lst.length.toString();
+            });
+          }
+        }
+        cnt++;
+      });
     }
   }
 
@@ -76,8 +82,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
     });
   }
 
-  void rejectUpdate(String uid, String finalRemarks) async
-  {
+  void rejectUpdate(String uid, String finalRemarks) async {
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests/' + uid);
     _testRef.child("state").set(-1);
@@ -97,10 +102,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
           .set(recentQuery.snapshot.value);
     } else {
       _prevRequests = FirebaseDatabase.instance.ref('requests');
-      _prevRequests
-          .child(uid)
-          .child("0")
-          .set(recentQuery.snapshot.value);
+      _prevRequests.child(uid).child("0").set(recentQuery.snapshot.value);
     }
   }
 
@@ -158,7 +160,6 @@ class _UploadStageScreen extends State<UploadStageScreen> {
         });
   }
 
-
   @override
   Widget build(BuildContext context) {
     BuildContext parentcontext = context;
@@ -168,14 +169,6 @@ class _UploadStageScreen extends State<UploadStageScreen> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // This is the theme of your application.
-      //theme: ThemeData.dark(),
-      // Scrolling in Flutter behaves differently depending on the
-      // ScrollBehavior. By default, ScrollBehavior changes depending
-      // on the current platform. For the purposes of this scrolling
-      // workshop, we're using a custom ScrollBehavior so that the
-      // experience is the same for everyone - regardless of the
-      // platform they are using.
       scrollBehavior: const ConstantScrollBehavior(),
       title: 'St Judes',
       home: Scaffold(
@@ -186,11 +179,52 @@ class _UploadStageScreen extends State<UploadStageScreen> {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   //final Request dailyForecast = Server.getDailyForecastByID(index);
-                  return Card(
-                    child: Row(
+                  TextEditingController phCnt = TextEditingController();
+                  TextEditingController uidCnt = TextEditingController();
+                  TextEditingController noCnt = TextEditingController();
+                  phCnt.text = mp.values.elementAt(index)['phone'];
+                  uidCnt.text = mp.keys.elementAt(index);
+                  noCnt.text = prevrequestLength[index];
+                  return ExpansionTile(
+                    children: [
+                      Container(
+                          width: 200,
+                          child: TextFormField(
+                            enabled: false,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                icon: Icon(Icons.phone),
+                                labelText: 'Phone'),
+                            controller: phCnt,
+                          )),
+                      Container(
+                          width: 200,
+                          child: TextFormField(
+                            enabled: false,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                icon: Icon(Icons.key),
+                                labelText: 'UID'),
+                            controller: uidCnt,
+                          )),
+                      Container(
+                          width: 200,
+                          child: TextFormField(
+                            enabled: false,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                icon: Icon(Icons.numbers),
+                                labelText: 'Number of request raised'),
+                            controller: noCnt,
+                          )),
+                    ],
+                    title: Row(
                       children: <Widget>[
                         SizedBox(
-                          height: 200.0,
+                          height: 100.0,
                           width: 200.0,
                           child: Stack(
                             fit: StackFit.expand,
@@ -216,6 +250,9 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                           padding: const EdgeInsets.all(16.0),
                           child: ElevatedButton(
                               child: const Text('Reject'),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.red,
+                              ),
                               onPressed: () async {
                                 rejectRequest(mp.keys.elementAt(index));
                               }),
@@ -224,6 +261,9 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                           padding: const EdgeInsets.all(16.0),
                           child: ElevatedButton(
                               child: const Text('Notify'),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.orange,
+                              ),
                               onPressed: () async {
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (parentcontext) {
@@ -334,6 +374,9 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                           padding: const EdgeInsets.all(16.0),
                           child: ElevatedButton(
                               child: const Text('Verify Documents'),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.green,
+                              ),
                               onPressed: () async {
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (context) {

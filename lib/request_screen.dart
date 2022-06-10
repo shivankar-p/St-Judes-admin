@@ -12,18 +12,6 @@ class RequestScreen extends StatefulWidget {
   }
 }
 
-List<String> items = [
-  "ey",
-  "hello",
-  "eyaln",
-  "kk",
-  "kvn",
-  ",vv",
-  "kakd",
-  "n,dfn0",
-  "lnfld"
-];
-
 class _RequestScreen extends State<RequestScreen> {
   //const WeeklyForecastList({Key? key}) : super(key: key);
 
@@ -33,8 +21,9 @@ class _RequestScreen extends State<RequestScreen> {
   Map<String, dynamic> mp = {};
   Map<String, dynamic> logs = {};
   List<int> requestLength = [];
+  List<String> prevrequestLength = List.filled(100000, '0');
+
   void _getActiverequests() async {
-     
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests');
     DatabaseEvent _event = await _testRef.once();
@@ -50,14 +39,30 @@ class _RequestScreen extends State<RequestScreen> {
     if (mounted) {
       setState(() {
         mp = {};
-       logs = {};
-       requestLength = [];
+        logs = {};
+        requestLength = [];
         tmp.forEach((key, value) {
           if (value["state"] == 1) {
             logs[key] = value['logs'];
             mp[key] = contact[key];
           }
         });
+      });
+
+      int cnt = 0;
+      mp.forEach((key, value) async {
+        DatabaseReference _testRef =
+            FirebaseDatabase.instance.ref('requests/' + key);
+        DatabaseEvent _event = await _testRef.once();
+        if (_event.snapshot.value != null) {
+          List<dynamic> lst = _event.snapshot.value as List<dynamic>;
+          if (mounted) {
+            setState(() {
+              prevrequestLength[cnt] = lst.length.toString();
+            });
+          }
+        }
+        cnt++;
       });
     }
   }
@@ -157,6 +162,7 @@ class _RequestScreen extends State<RequestScreen> {
         });
   }
 
+  int cnt = 0;
   @override
   Widget build(BuildContext context) {
     //BuildContext parentcontext = context;
@@ -166,14 +172,6 @@ class _RequestScreen extends State<RequestScreen> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // This is the theme of your application.
-      //theme: ThemeData.dark(),
-      // Scrolling in Flutter behaves differently depending on the
-      // ScrollBehavior. By default, ScrollBehavior changes depending
-      // on the current platform. For the purposes of this scrolling
-      // workshop, we're using a custom ScrollBehavior so that the
-      // experience is the same for everyone - regardless of the
-      // platform they are using.
       scrollBehavior: const ConstantScrollBehavior(),
       title: 'St Judes',
       home: Scaffold(
@@ -184,11 +182,53 @@ class _RequestScreen extends State<RequestScreen> {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   //final Request dailyForecast = Server.getDailyForecastByID(index);
-                  return Card(
-                    child: Row(
+
+                  TextEditingController phCnt = TextEditingController();
+                  TextEditingController uidCnt = TextEditingController();
+                  TextEditingController noCnt = TextEditingController();
+                  phCnt.text = mp.values.elementAt(index)['phone'];
+                  uidCnt.text = mp.keys.elementAt(index);
+                  noCnt.text = prevrequestLength[index];
+                  return ExpansionTile(
+                    children: [
+                      Container(
+                          width: 200,
+                          child: TextFormField(
+                            enabled: false,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                icon: Icon(Icons.phone),
+                                labelText: 'Phone'),
+                            controller: phCnt,
+                          )),
+                      Container(
+                          width: 200,
+                          child: TextFormField(
+                            enabled: false,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                icon: Icon(Icons.key),
+                                labelText: 'UID'),
+                            controller: uidCnt,
+                          )),
+                      Container(
+                          width: 200,
+                          child: TextFormField(
+                            enabled: false,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                icon: Icon(Icons.numbers),
+                                labelText: 'Number of request raised'),
+                            controller: noCnt,
+                          )),
+                    ],
+                    title: Row(
                       children: <Widget>[
                         SizedBox(
-                          height: 200.0,
+                          height: 100.0,
                           width: 200.0,
                           child: Stack(
                             fit: StackFit.expand,
@@ -213,6 +253,9 @@ class _RequestScreen extends State<RequestScreen> {
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.orange,
+                              ),
                               child: const Text('Notify'),
                               onPressed: () async {
                                 Navigator.push(context,
@@ -225,6 +268,9 @@ class _RequestScreen extends State<RequestScreen> {
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.red,
+                              ),
                               child: const Text('Reject'),
                               onPressed: () async {
                                 rejectRequest(mp.keys.elementAt(index));

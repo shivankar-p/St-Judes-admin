@@ -140,10 +140,10 @@ class BeautifulPopup {
         alpha: 0,
       );
     }
-    final paint = await PaintingBinding.instance?.instantiateImageCodec(
+    final paint = await PaintingBinding.instance.instantiateImageCodec(
         asset != null ? Uint8List.fromList(img.encodePng(asset)) : buffer);
-    final nextFrame = await paint?.getNextFrame();
-    _illustration = nextFrame?.image;
+    final nextFrame = await paint.getNextFrame();
+    _illustration = nextFrame.image;
     return this;
   }
 

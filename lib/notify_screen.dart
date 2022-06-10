@@ -13,55 +13,7 @@ class ChatRoom extends StatefulWidget {
   _ChatRoomState createState() => _ChatRoomState();
 }
 
-/* var chatMsgs = {
-  0: [
-    'Hey man how are you',
-    true,
-    '10:00 pm',
-  ],
-  1: [
-    'Hey man I am fine been a while',
-    false,
-    '10:01 pm',
-  ],
-  2: [
-    'How are you man',
-    false,
-    '10:01 pm',
-  ],
-  3: ['I\'m fine man.', true, '10:02 pm'],
-  4: [
-    'What have you been upto these days!',
-    true,
-    '10:02 pm',
-  ],
-  5: [
-    'I have been learning flutter from youtube channels',
-    false,
-    '10:03 pm',
-  ],
-  6: ['Cool man! I\'ve been doing the same recently', true, '10:03 pm'],
-  7: [
-    'Wow that\'s so cool. We should collaborate sometimekbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-    false,
-    '10:04pm',
-  ],
-  8: [
-    'Yea definitely I will hit you up when a project comes',
-    true,
-    '10:04 pm',
-  ],
-  9: [
-    'Alright man Take care will catch up sometime',
-    true,
-    '10:04 pm',
-  ],
-  10: [
-    'Hi sorry about earlier, was a bit busy\n yea you take care',
-    false,
-    '10:30 pm'
-  ],
-}; */
+
 
 class _ChatRoomState extends State<ChatRoom> {
   bool emptyString = true;
@@ -98,7 +50,12 @@ class _ChatRoomState extends State<ChatRoom> {
     _getChats();
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.name + '\'s Notifications'),
+          iconTheme: IconThemeData(
+            color: Colors.black, //change your color here
+          ),
+          title: Text(widget.name + '\'s Notifications',
+          style: TextStyle(color: Colors.black),),
+          backgroundColor: Colors.orange.shade400,
         ),
         backgroundColor: Colors.orange.shade100,
         body: Column(children: <Widget>[
