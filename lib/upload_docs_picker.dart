@@ -7,10 +7,12 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'request_screen.dart';
+import 'loggedIn.dart';
 
 class docPicker extends StatefulWidget {
   String uid;
-  docPicker(this.uid);
+  int flag;
+  docPicker(this.uid, this.flag);
   @override
   _docPicker createState() => _docPicker();
 }
@@ -54,21 +56,56 @@ List<String> dockeys = [
 class _docPicker extends State<docPicker> {
   List<bool> docChoosen = List.filled(docs.length, false);
 
-  void updateToUploadStage() {
+  int getindex(index) {
+    int cnt = 0;
+    int ans = 0;
+    dockeys.forEach((element) {
+      if (element == index) ans = cnt;
+      cnt++;
+    });
+    return ans;
+  }
+
+  void updateDocChoosen() async {
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('activerequests/' + widget.uid + '/docs');
+    DatabaseEvent event = await _testRef.once();
+
+    if (event.snapshot.value != null) {
+      Map<String, dynamic> mp = event.snapshot.value as Map<String, dynamic>;
+      mp.forEach((key, value) {
+        if (mounted) {
+          setState(() {
+            docChoosen[getindex(key)] = true;
+          });
+        }
+      });
+    }
+  }
+
+  void updateToUploadStage() async {
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests/' + widget.uid);
 
-
     for (var i = 0; i < docChoosen.length; i++) {
       if (docChoosen[i] == true) {
-        _testRef.child('docs').child(dockeys[i]).set({"state": 0, "url": ""});
+        DatabaseReference _docRef = FirebaseDatabase.instance
+            .ref('activerequests/' + widget.uid + '/docs/' + dockeys[i]);
+        DatabaseEvent docevent = await _docRef.once();
+        if (docevent.snapshot.value == null) {
+          _testRef.child('docs').child(dockeys[i]).set({"state": 0, "url": ""});
+        }
       }
     }
-    
+
     _testRef.child('state').set(2);
   }
 
   Widget build(BuildContext context) {
+    if (widget.flag == 1) {
+      updateDocChoosen();
+    }
+
     return Scaffold(
         appBar: AppBar(
           title: Text('Document Picker'),
@@ -115,10 +152,14 @@ class _docPicker extends State<docPicker> {
                               ),
                               onPressed: () async {
                                 updateToUploadStage();
-                                Navigator.pushReplacement(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return RequestScreen();
-                                }));
+                                if (widget.flag == 0) {
+                                  Navigator.pushReplacement(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return RequestScreen();
+                                  }));
+                                } else {
+                                  Navigator.pop(context, true);
+                                }
                               }))
                       : Text(''),
                   Divider(

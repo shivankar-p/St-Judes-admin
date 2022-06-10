@@ -34,6 +34,7 @@ class _RequestScreen extends State<RequestScreen> {
   Map<String, dynamic> logs = {};
   List<int> requestLength = [];
   void _getActiverequests() async {
+     
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests');
     DatabaseEvent _event = await _testRef.once();
@@ -48,6 +49,9 @@ class _RequestScreen extends State<RequestScreen> {
 
     if (mounted) {
       setState(() {
+        mp = {};
+       logs = {};
+       requestLength = [];
         tmp.forEach((key, value) {
           if (value["state"] == 1) {
             logs[key] = value['logs'];
@@ -75,8 +79,7 @@ class _RequestScreen extends State<RequestScreen> {
     });
   }
 
-  void rejectUpdate(String uid, String finalRemarks) async
-  {
+  void rejectUpdate(String uid, String finalRemarks) async {
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests/' + uid);
     _testRef.child("state").set(-1);
@@ -96,10 +99,7 @@ class _RequestScreen extends State<RequestScreen> {
           .set(recentQuery.snapshot.value);
     } else {
       _prevRequests = FirebaseDatabase.instance.ref('requests');
-      _prevRequests
-          .child(uid)
-          .child("0")
-          .set(recentQuery.snapshot.value);
+      _prevRequests.child(uid).child("0").set(recentQuery.snapshot.value);
     }
   }
 
@@ -159,7 +159,7 @@ class _RequestScreen extends State<RequestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    BuildContext parentcontext = context;
+    //BuildContext parentcontext = context;
     _getActiverequests();
     final DateTime currentDate = DateTime.now();
     final TextTheme textTheme = Theme.of(context).textTheme;
@@ -337,7 +337,7 @@ class _RequestScreen extends State<RequestScreen> {
                                             MaterialPageRoute(
                                                 builder: (parentcontext) {
                                           return docPicker(
-                                              mp.keys.elementAt(index));
+                                              mp.keys.elementAt(index), 0);
                                         }));
                                       },
                                     ),

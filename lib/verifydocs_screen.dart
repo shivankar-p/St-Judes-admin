@@ -24,6 +24,7 @@ import 'package:file_saver/file_saver_web.dart';
 import 'package:archive/archive.dart';
 import 'dart:typed_data';
 import 'package:uri_to_file/uri_to_file.dart';
+import 'upload_docs_picker.dart';
 
 class verifyScreen extends StatefulWidget {
   String uid;
@@ -194,7 +195,7 @@ class _verifyScreen extends State<verifyScreen> {
     );
     var bytes = encoder.encode(archive,
         level: Deflate.BEST_COMPRESSION, output: outputStream);
-    print(bytes);
+    //print(bytes);
     downloadFile(widget.uid + "_" + reqno + ".zip", bytes);
   }
 
@@ -351,10 +352,10 @@ class _verifyScreen extends State<verifyScreen> {
                           ),
                         ],
                       )),
-                  (showApproveButton == true &&
-                          index == requestedDocs.length - 1)
+                  (index == requestedDocs.length - 1)
                       ? (Row(children: <Widget>[
-                          Padding(
+                          showApproveButton == true ?
+                          (Padding(
                               padding: EdgeInsets.all(10),
                               child: ElevatedButton(
                                   child: const Text(
@@ -447,8 +448,9 @@ class _verifyScreen extends State<verifyScreen> {
                                             ),
                                           );
                                         });
-                                  })),
-                          Padding(
+                                  }))) : Text(''),
+                          showApproveButton == true ?
+                          (Padding(
                               padding: EdgeInsets.all(10),
                               child: ElevatedButton(
                                   child: const Text(
@@ -461,7 +463,25 @@ class _verifyScreen extends State<verifyScreen> {
                                   ),
                                   onPressed: () async {
                                     download_helper();
-                                  }))
+                                  }))) : Text(''),
+                          Padding(
+                              padding: EdgeInsets.all(10),
+                              child: ElevatedButton(
+                                  child: const Text(
+                                    'Request more Docs',
+                                    style: TextStyle(fontSize: 23),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize: Size(70, 60),
+                                    primary: Colors.purple,
+                                  ),
+                                  onPressed: () async {
+                                    Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return docPicker(widget.uid, 1);
+                                }));
+                                  })),
+                         
                         ]))
                       : Text(''),
                   Divider(
