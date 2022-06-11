@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'test_screen.dart';
 import 'request_screen.dart';
 import 'notify_screen.dart';
 import 'uploadstage_request_screen.dart';
 import 'queries.dart';
-
+import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart';
 
 class LoggedInScreen extends StatefulWidget {
   @override
@@ -13,11 +13,9 @@ class LoggedInScreen extends StatefulWidget {
 }
 
 class Constants {
-  static const String Logout = 'Logout';
-  static const String Profile = 'Profile';
-  static const String Language = 'Language';
+  static const String Remind = 'Remind document upload';
 
-  static const List<String> choices = <String>[Profile, Language, Logout];
+  static const List<String> choices = <String>[Remind];
 }
 
 class _LoggedInScreenState extends State<LoggedInScreen>
@@ -36,13 +34,43 @@ class _LoggedInScreenState extends State<LoggedInScreen>
     });
   }
 
+  void _sendNotification(String uid, String msg) async {
+    String date = DateFormat("dd MMMM yyyy").format(DateTime.now());
+    String time = DateFormat("HH:mm:ss").format(DateTime.now());
+
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('notifications/' + uid);
+    DatabaseEvent _event = await _testRef.once();
+
+    List<dynamic> chatMsgs = [];
+    if (_event.snapshot.value != null)
+      chatMsgs = _event.snapshot.value as List<dynamic>;
+    _testRef.child(chatMsgs.length.toString()).set({
+      'date': date,
+      'msg': msg,
+      'time': time,
+    });
+  }
+
+  void remindusers() async {
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('activerequests');
+    DatabaseEvent _event = await _testRef.once();
+
+    Map<String, dynamic> tmp = {};
+    tmp = _event.snapshot.value as Map<String, dynamic>;
+
+    tmp.forEach((key, value) {
+      if (value["state"] == 2) {
+        String msg = "Reminder: Please upload the requested documents!";
+        _sendNotification(key, msg);
+      }
+    });
+  }
+
   void choiceAction(String choice) {
-    if (choice == Constants.Profile) {
-      print('Profile');
-    } else if (choice == Constants.Language) {
-      print('Language');
-    } else if (choice == Constants.Logout) {
-      print('Logout');
+    if (choice == Constants.Remind) {
+      remindusers();
     }
   }
 
@@ -92,7 +120,6 @@ class _LoggedInScreenState extends State<LoggedInScreen>
           RequestScreen(),
           UploadStageScreen(),
           QueriesScreen()
-
         ],
       ),
     );

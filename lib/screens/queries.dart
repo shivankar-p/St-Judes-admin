@@ -1,9 +1,9 @@
-import 'package:admin_app/loggedIn.dart';
-import 'package:admin_app/notify_screen.dart';
+import 'package:admin_app/screens/loggedIn.dart';
+import 'package:admin_app/screens/notify_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'flutter_beautiful_popup-1.7.0/lib/main.dart';
-import 'upload_docs_picker.dart';
+import '../flutter_beautiful_popup-1.7.0/lib/main.dart';
+import '../utils/upload_docs_picker.dart';
 
 class QueriesScreen extends StatefulWidget {
   @override

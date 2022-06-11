@@ -1,4 +1,4 @@
-import 'package:admin_app/loggedIn.dart';
+import 'package:admin_app/screens/loggedIn.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
@@ -12,7 +12,7 @@ import 'uploadstage_request_screen.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'final_remark_popup.dart';
+import '../utils/final_remark_popup.dart';
 import 'dart:html' as html;
 import 'dart:convert';
 import 'dart:io';
@@ -24,7 +24,7 @@ import 'package:file_saver/file_saver_web.dart';
 import 'package:archive/archive.dart';
 import 'dart:typed_data';
 import 'package:uri_to_file/uri_to_file.dart';
-import 'upload_docs_picker.dart';
+import '../utils/upload_docs_picker.dart';
 
 class verifyScreen extends StatefulWidget {
   String uid;
@@ -265,6 +265,24 @@ class _verifyScreen extends State<verifyScreen> {
     return ans;
   }
 
+  void notify_user(uid, msg) async {
+    String date = DateFormat("dd MMMM yyyy").format(DateTime.now());
+    String time = DateFormat("HH:mm:ss").format(DateTime.now());
+
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('notifications/' + uid);
+    DatabaseEvent _event = await _testRef.once();
+
+    List<dynamic> chatMsgs = [];
+    if (_event.snapshot.value != null)
+      chatMsgs = _event.snapshot.value as List<dynamic>;
+    _testRef.child(chatMsgs.length.toString()).set({
+      'date': date,
+      'msg': msg,
+      'time': time,
+    });
+  }
+
   Widget build(BuildContext context) {
     getRequestedDocs();
     return Scaffold(
@@ -328,6 +346,14 @@ class _verifyScreen extends State<verifyScreen> {
                                                 primary: Colors.green,
                                               ),
                                               onPressed: () async {
+                                                notify_user(
+                                                    widget.uid,
+                                                    "Document Verified: Your document " +
+                                                        docs[getindex(
+                                                            requestedDocs.keys
+                                                                .elementAt(
+                                                                    index))] +
+                                                        "has been verified!");
                                                 verifyDoc(index);
                                               }))
                                           : Text('Verified',
@@ -356,6 +382,14 @@ class _verifyScreen extends State<verifyScreen> {
                                                 primary: Colors.red,
                                               ),
                                               onPressed: () async {
+                                                notify_user(
+                                                    widget.uid,
+                                                    "Document Rejected: Your document " +
+                                                        docs[getindex(
+                                                            requestedDocs.keys
+                                                                .elementAt(
+                                                                    index))] +
+                                                        "has been Rejected. Please reupload the document");
                                                 declineDoc(index);
                                               }))
                                           : Icon(
@@ -379,142 +413,158 @@ class _verifyScreen extends State<verifyScreen> {
                         ],
                       )),
                   (index == requestedDocs.length - 1)
-                      ? (Row(children: <Widget>[
-                          showApproveButton == true
-                              ? (Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: ElevatedButton(
-                                      child: const Text(
-                                        'Approve Request',
-                                        style: TextStyle(fontSize: 23),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        minimumSize: Size(70, 60),
-                                        primary: Colors.purple,
-                                      ),
-                                      onPressed: () async {
-                                        TextEditingController RemarkController =
-                                            TextEditingController();
-                                        return showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                content: Stack(
-                                                  children: <Widget>[
-                                                    Positioned(
-                                                      right: -40.0,
-                                                      top: -40.0,
-                                                      child: InkResponse(
-                                                        onTap: () {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        },
-                                                        child: CircleAvatar(
-                                                          child:
-                                                              Icon(Icons.close),
-                                                          backgroundColor:
-                                                              Colors.red,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Form(
-                                                      child: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: <Widget>[
-                                                          Padding(
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                    8.0),
-                                                            child:
-                                                                TextFormField(
-                                                              decoration:
-                                                                  const InputDecoration(
-                                                                icon: const Icon(
-                                                                    Icons
-                                                                        .feedback),
-                                                                hintText:
-                                                                    'Enter Request closing remarks',
-                                                                labelText:
-                                                                    'Final Remarks',
-                                                              ),
-                                                              controller:
-                                                                  RemarkController,
+                      ? (Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                              showApproveButton == true
+                                  ? (Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: ElevatedButton(
+                                          child: const Text(
+                                            'Approve Request',
+                                            style: TextStyle(fontSize: 23),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            minimumSize: Size(70, 60),
+                                            primary: Colors.green,
+                                          ),
+                                          onPressed: () async {
+                                            TextEditingController
+                                                RemarkController =
+                                                TextEditingController();
+                                            return showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    content: Stack(
+                                                      children: <Widget>[
+                                                        Positioned(
+                                                          right: -40.0,
+                                                          top: -40.0,
+                                                          child: InkResponse(
+                                                            onTap: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            child: CircleAvatar(
+                                                              child: Icon(
+                                                                  Icons.close),
+                                                              backgroundColor:
+                                                                  Colors.red,
                                                             ),
                                                           ),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(8.0),
-                                                            child:
-                                                                ElevatedButton(
-                                                                    style: ElevatedButton
-                                                                        .styleFrom(
-                                                                      primary:
-                                                                          Colors
-                                                                              .orange,
-                                                                    ),
-                                                                    child: Text(
-                                                                        "Submit"),
-                                                                    onPressed:
-                                                                        () {
-                                                                      approveRequest(
-                                                                          RemarkController
-                                                                              .text);
+                                                        ),
+                                                        Form(
+                                                          child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: <Widget>[
+                                                              Padding(
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .all(
+                                                                            8.0),
+                                                                child:
+                                                                    TextFormField(
+                                                                  decoration:
+                                                                      const InputDecoration(
+                                                                    icon: const Icon(
+                                                                        Icons
+                                                                            .feedback),
+                                                                    hintText:
+                                                                        'Enter Request closing remarks',
+                                                                    labelText:
+                                                                        'Final Remarks',
+                                                                  ),
+                                                                  controller:
+                                                                      RemarkController,
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
+                                                                child:
+                                                                    ElevatedButton(
+                                                                        style: ElevatedButton
+                                                                            .styleFrom(
+                                                                          primary:
+                                                                              Colors.orange,
+                                                                        ),
+                                                                        child: Text(
+                                                                            "Submit"),
+                                                                        onPressed:
+                                                                            () {
+                                                                          approveRequest(
+                                                                              RemarkController.text);
+                                                                          notify_user(
+                                                                              widget.uid,
+                                                                              "Request Approved: Your Requested has been approved.\n Admin Remarks: " + RemarkController.text);
 
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                      Navigator.pushReplacement(
-                                                                          context,
-                                                                          MaterialPageRoute(builder:
-                                                                              (context) {
-                                                                        return LoggedInScreen();
-                                                                      }));
-                                                                    }),
-                                                          )
-                                                        ],
-                                                      ),
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          Navigator.pushReplacement(
+                                                                              context,
+                                                                              MaterialPageRoute(builder: (context) {
+                                                                            return LoggedInScreen();
+                                                                          }));
+                                                                        }),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
-                                              );
-                                            });
-                                      })))
-                              : Text(''),
-                          showApproveButton == true
-                              ? (Padding(
+                                                  );
+                                                });
+                                          })))
+                                  : Text(''),
+                              showApproveButton == true
+                                  ? (Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: ElevatedButton(
+                                          child: Row(children: [
+                                            const Text(
+                                              'Download zip',
+                                              style: TextStyle(fontSize: 23),
+                                            ),
+                                            Padding(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    10, 5, 5, 5),
+                                                child: Icon(
+                                                    Icons.folder_zip_outlined))
+                                          ]),
+                                          style: ElevatedButton.styleFrom(
+                                            minimumSize: Size(70, 60),
+                                            primary: Colors.brown.shade400,
+                                          ),
+                                          onPressed: () async {
+                                            download_helper();
+                                          })))
+                                  : Text(''),
+                              Padding(
                                   padding: EdgeInsets.all(10),
                                   child: ElevatedButton(
                                       child: const Text(
-                                        'Download zip',
+                                        'Request more Docs',
                                         style: TextStyle(fontSize: 23),
                                       ),
                                       style: ElevatedButton.styleFrom(
                                         minimumSize: Size(70, 60),
-                                        primary: Colors.purple,
+                                        primary: Colors.orange.shade300,
                                       ),
                                       onPressed: () async {
-                                        download_helper();
-                                      })))
-                              : Text(''),
-                          Padding(
-                              padding: EdgeInsets.all(10),
-                              child: ElevatedButton(
-                                  child: const Text(
-                                    'Request more Docs',
-                                    style: TextStyle(fontSize: 23),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    minimumSize: Size(70, 60),
-                                    primary: Colors.purple,
-                                  ),
-                                  onPressed: () async {
-                                    Navigator.push(context,
-                                        MaterialPageRoute(builder: (context) {
-                                      return docPicker(widget.uid, 1);
-                                    }));
-                                  })),
-                        ]))
+                                        Navigator.push(context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return docPicker(widget.uid, 1);
+                                        }));
+                                      })),
+                            ]))
                       : Text(''),
                   Divider(
                     height: 3,

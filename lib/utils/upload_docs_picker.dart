@@ -1,4 +1,4 @@
-import 'package:admin_app/uploadstage_request_screen.dart';
+import 'package:admin_app/screens/uploadstage_request_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
@@ -6,8 +6,8 @@ import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'request_screen.dart';
-import 'loggedIn.dart';
+import '../screens/request_screen.dart';
+import '../screens/loggedIn.dart';
 
 class docPicker extends StatefulWidget {
   String uid;

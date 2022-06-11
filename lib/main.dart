@@ -2,9 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'loggedIn.dart';
-import 'final_remark_popup.dart';
-import 'audio.dart';
+import 'screens/loggedIn.dart';
+import 'utils/final_remark_popup.dart';
+import 'utils/audio.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

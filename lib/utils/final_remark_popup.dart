@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'uploadstage_request_screen.dart';
+import '../screens/uploadstage_request_screen.dart';
 
 class FinalRemark extends StatefulWidget {
   @override

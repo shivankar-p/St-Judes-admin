@@ -1,11 +1,12 @@
-import 'package:admin_app/loggedIn.dart';
-import 'package:admin_app/notify_screen.dart';
-import 'package:admin_app/verifydocs_screen.dart';
+import 'package:admin_app/screens/loggedIn.dart';
+import 'package:admin_app/screens/notify_screen.dart';
+import 'package:admin_app/screens/verifydocs_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'flutter_beautiful_popup-1.7.0/lib/main.dart';
-import 'upload_docs_picker.dart';
-import 'audio.dart';
+import '../flutter_beautiful_popup-1.7.0/lib/main.dart';
+import '../utils/upload_docs_picker.dart';
+import '../utils/audio.dart';
+import 'package:intl/intl.dart';
 
 class UploadStageScreen extends StatefulWidget {
   @override
@@ -23,6 +24,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
 
   Map<String, dynamic> mp = {};
   Map<String, dynamic> logs = {};
+  Map<String, dynamic> activeRequests = {};
   Map<String, dynamic> audiofiles = {};
   List<int> requestLength = [];
   List<String> prevrequestLength = List.filled(100000, '0');
@@ -32,6 +34,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
     DatabaseEvent _event = await _testRef.once();
 
     Map<String, dynamic> tmp = {};
+    activeRequests = _event.snapshot.value as Map<String, dynamic>;
     tmp = _event.snapshot.value as Map<String, dynamic>;
 
     _testRef = FirebaseDatabase.instance.ref('uidToPhone');
@@ -151,6 +154,8 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                       ),
                       child: Text("Submit"),
                       onPressed: () {
+                         notify_user(uid,
+                        "Request Rejected: Your request has been rejected. Admin remarks: " + RemarkController.text);
                         rejectUpdate(uid, RemarkController.text);
                         Navigator.pop(context);
                         Navigator.pushReplacement(context,
@@ -161,6 +166,24 @@ class _UploadStageScreen extends State<UploadStageScreen> {
             ]))
           ]));
         });
+  }
+
+  void notify_user(uid, msg) async {
+    String date = DateFormat("dd MMMM yyyy").format(DateTime.now());
+    String time = DateFormat("HH:mm:ss").format(DateTime.now());
+
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('notifications/' + uid);
+    DatabaseEvent _event = await _testRef.once();
+
+    List<dynamic> chatMsgs = [];
+    if (_event.snapshot.value != null)
+      chatMsgs = _event.snapshot.value as List<dynamic>;
+    _testRef.child(chatMsgs.length.toString()).set({
+      'date': date,
+      'msg': msg,
+      'time': time,
+    });
   }
 
   @override
@@ -185,9 +208,12 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                   TextEditingController phCnt = TextEditingController();
                   TextEditingController uidCnt = TextEditingController();
                   TextEditingController noCnt = TextEditingController();
+                  TextEditingController langCnt = TextEditingController();
                   phCnt.text = mp.values.elementAt(index)['phone'];
                   uidCnt.text = mp.keys.elementAt(index);
                   noCnt.text = prevrequestLength[index];
+                  langCnt.text =
+                      activeRequests[mp.keys.elementAt(index)]['language'];
                   return ExpansionTile(
                     children: [
                       Row(
@@ -205,6 +231,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                           )),
                       Container(
                           width: 200,
+                          padding: EdgeInsets.only(left: 30),
                           child: TextFormField(
                             enabled: false,
                             decoration: InputDecoration(
@@ -216,6 +243,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                           )),
                       Container(
                           width: 200,
+                          padding: EdgeInsets.only(left: 30),
                           child: TextFormField(
                             enabled: false,
                             decoration: InputDecoration(
@@ -224,6 +252,18 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                                 icon: Icon(Icons.numbers),
                                 labelText: 'Number of request raised'),
                             controller: noCnt,
+                          )),
+                      Container(
+                          width: 200,
+                          padding: EdgeInsets.only(left: 30),
+                          child: TextFormField(
+                            enabled: false,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                icon: Icon(Icons.language),
+                                labelText: 'Language'),
+                            controller: langCnt,
                           )),
                       if(audiofiles[mp.keys.elementAt(index)] != '')
                                 audio(audiofiles[mp.keys.elementAt(index)])
