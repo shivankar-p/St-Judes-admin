@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'flutter_beautiful_popup-1.7.0/lib/main.dart';
 import 'upload_docs_picker.dart';
+import 'audio.dart';
 
 class UploadStageScreen extends StatefulWidget {
   @override
@@ -22,6 +23,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
 
   Map<String, dynamic> mp = {};
   Map<String, dynamic> logs = {};
+  Map<String, dynamic> audiofiles = {};
   List<int> requestLength = [];
   List<String> prevrequestLength = List.filled(100000, '0');
   void _getActiverequests() async {
@@ -43,6 +45,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
           if (value["state"] == 2 || value["state"] == 3) {
             logs[key] = value['logs'];
             mp[key] = contact[key];
+            audiofiles[key] = value['voice'];
           }
         });
       });
@@ -187,7 +190,9 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                   noCnt.text = prevrequestLength[index];
                   return ExpansionTile(
                     children: [
-                      Container(
+                      Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [Container(
                           width: 200,
                           child: TextFormField(
                             enabled: false,
@@ -220,7 +225,15 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                                 labelText: 'Number of request raised'),
                             controller: noCnt,
                           )),
-                    ],
+                      if(audiofiles[mp.keys.elementAt(index)] != '')
+                                audio(audiofiles[mp.keys.elementAt(index)])
+                      else Padding(
+                        padding: EdgeInsets.fromLTRB(100, 5, 5, 5),
+                        child: Text('No Voicenote Uploaded',
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.grey)))
+                      ])
+                  ],
                     title: Row(
                       children: <Widget>[
                         SizedBox(

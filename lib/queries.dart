@@ -104,7 +104,17 @@ class _QueriesScreen extends State<QueriesScreen> {
                       },
                     ),
                     subtitle: Text(mp.values.elementAt(index)['msg']),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(mp.values.elementAt(index)['date'] + '      ' + mp.values.elementAt(index)['time']),
+                        Icon(Icons.arrow_drop_down_sharp),
+                      ]
+                    ),
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                       Container(
                           width: 200,
                           child: TextFormField(
@@ -140,7 +150,7 @@ class _QueriesScreen extends State<QueriesScreen> {
                                   return CircularProgressIndicator();
                                 }
                               })),
-                    ],
+          ])],
                   );
                 },
                 childCount: getChildCount(),

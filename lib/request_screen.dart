@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'flutter_beautiful_popup-1.7.0/lib/main.dart';
 import 'upload_docs_picker.dart';
+import 'audio.dart';
 
 class RequestScreen extends StatefulWidget {
   @override
@@ -20,6 +21,7 @@ class _RequestScreen extends State<RequestScreen> {
 
   Map<String, dynamic> mp = {};
   Map<String, dynamic> logs = {};
+  Map<String, dynamic> audiofiles = {};
   List<int> requestLength = [];
   List<String> prevrequestLength = List.filled(100000, '0');
 
@@ -45,6 +47,7 @@ class _RequestScreen extends State<RequestScreen> {
           if (value["state"] == 1) {
             logs[key] = value['logs'];
             mp[key] = contact[key];
+            audiofiles[key] = value['voice'];
           }
         });
       });
@@ -162,7 +165,8 @@ class _RequestScreen extends State<RequestScreen> {
         });
   }
 
-  int cnt = 0;
+  //...
+
   @override
   Widget build(BuildContext context) {
     //BuildContext parentcontext = context;
@@ -189,41 +193,53 @@ class _RequestScreen extends State<RequestScreen> {
                   phCnt.text = mp.values.elementAt(index)['phone'];
                   uidCnt.text = mp.keys.elementAt(index);
                   noCnt.text = prevrequestLength[index];
+
                   return ExpansionTile(
                     children: [
-                      Container(
-                          width: 200,
-                          child: TextFormField(
-                            enabled: false,
-                            decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
-                                icon: Icon(Icons.phone),
-                                labelText: 'Phone'),
-                            controller: phCnt,
-                          )),
-                      Container(
-                          width: 200,
-                          child: TextFormField(
-                            enabled: false,
-                            decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
-                                icon: Icon(Icons.key),
-                                labelText: 'UID'),
-                            controller: uidCnt,
-                          )),
-                      Container(
-                          width: 200,
-                          child: TextFormField(
-                            enabled: false,
-                            decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
-                                icon: Icon(Icons.numbers),
-                                labelText: 'Number of request raised'),
-                            controller: noCnt,
-                          )),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                                width: 200,
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                      icon: Icon(Icons.phone),
+                                      labelText: 'Phone'),
+                                  controller: phCnt,
+                                )),
+                            Container(
+                                width: 200,
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                      icon: Icon(Icons.key),
+                                      labelText: 'UID'),
+                                  controller: uidCnt,
+                                )),
+                            Container(
+                                width: 200,
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                      icon: Icon(Icons.numbers),
+                                      labelText: 'Number of request raised'),
+                                  controller: noCnt,
+                                )),
+                            if(audiofiles[mp.keys.elementAt(index)] != '')
+                                audio(audiofiles[mp.keys.elementAt(index)])
+                            else Padding(
+                              padding: EdgeInsets.fromLTRB(100, 5, 5, 5),
+                              child: Text('No Voicenote Uploaded',
+                                          style: TextStyle(
+                                              fontSize: 20, color: Colors.grey)))
+                          ])
                     ],
                     title: Row(
                       children: <Widget>[
