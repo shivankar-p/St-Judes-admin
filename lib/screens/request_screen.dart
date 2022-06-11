@@ -8,7 +8,6 @@ import '../utils/audio.dart';
 import 'loggedIn.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
-
 import '../widget/search_widget.dart';
 
 class RequestScreen extends StatefulWidget {
@@ -39,19 +38,9 @@ class _RequestScreen extends State<RequestScreen> {
       );
 
   void searchUser(String str) {
-    // final books = allBooks.where((book) {
-    //   final titleLower = book.title.toLowerCase();
-    //   final authorLower = book.author.toLowerCase();
-    //   final searchLower = query.toLowerCase();
+    print("Searching User\n\n");
+    str = str.toLowerCase();
 
-    //   return titleLower.contains(searchLower) ||
-    //       authorLower.contains(searchLower);
-    // }).toList();
-
-    // setState(() {
-    //   this.query = query;
-    //   this.books = books;
-    // });
     setState(() {
       query = str;
     });
@@ -59,7 +48,10 @@ class _RequestScreen extends State<RequestScreen> {
     Map<String, dynamic> tmp = {};
 
     mp.forEach((k, v) {
-      if (k.contains(query) || v["name"].contains(query)) {
+      String name = v["name"];
+      name = name.toLowerCase();
+
+      if (k.contains(query) || name.contains(query)) {
         tmp[k] = v;
       }
     });
@@ -75,8 +67,6 @@ class _RequestScreen extends State<RequestScreen> {
   }
 
   void _getActiverequests() async {
-    print("\n\nGet Active Request Called..");
-    print(query);
     if (query.isEmpty) {
       DatabaseReference _testRef =
           FirebaseDatabase.instance.ref('activerequests');

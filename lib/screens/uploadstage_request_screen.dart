@@ -7,6 +7,7 @@ import '../flutter_beautiful_popup-1.7.0/lib/main.dart';
 import '../utils/upload_docs_picker.dart';
 import '../utils/audio.dart';
 import 'package:intl/intl.dart';
+import '../widget/search_widget.dart';
 
 class UploadStageScreen extends StatefulWidget {
   @override
@@ -14,7 +15,6 @@ class UploadStageScreen extends StatefulWidget {
     return new _UploadStageScreen();
   }
 }
-
 
 class _UploadStageScreen extends State<UploadStageScreen> {
   //const WeeklyForecastList({Key? key}) : super(key: key);
@@ -28,46 +28,84 @@ class _UploadStageScreen extends State<UploadStageScreen> {
   Map<String, dynamic> audiofiles = {};
   List<int> requestLength = [];
   List<String> prevrequestLength = List.filled(100000, '0');
-  void _getActiverequests() async {
-    DatabaseReference _testRef =
-        FirebaseDatabase.instance.ref('activerequests');
-    DatabaseEvent _event = await _testRef.once();
+  String query = '';
+
+  Widget buildSearch() => SearchWidget(
+        text: query,
+        hintText: 'ID or User name',
+        onChanged: searchUser,
+      );
+
+  void searchUser(String str) {
+    str = str.toLowerCase();
+
+    setState(() {
+      query = str;
+    });
 
     Map<String, dynamic> tmp = {};
-    activeRequests = _event.snapshot.value as Map<String, dynamic>;
-    tmp = _event.snapshot.value as Map<String, dynamic>;
 
-    _testRef = FirebaseDatabase.instance.ref('uidToPhone');
-    _event = await _testRef.once();
-    Map<String, dynamic> contact = {};
-    contact = _event.snapshot.value as Map<String, dynamic>;
+    mp.forEach((k, v) {
+      String name = v["name"];
+      name = name.toLowerCase();
 
-    if (mounted) {
-      setState(() {
-        tmp.forEach((key, value) {
-          if (value["state"] == 2 || value["state"] == 3) {
-            logs[key] = value['logs'];
-            mp[key] = contact[key];
-            audiofiles[key] = value['voice'];
-          }
+      if (k.contains(query) || name.contains(query)) {
+        tmp[k] = v;
+      }
+    });
+
+    print(tmp);
+
+    setState(() {
+      mp = tmp;
+    });
+
+    print(mp);
+    print("before");
+  }
+
+  void _getActiverequests() async {
+    if (query.isEmpty) {
+      DatabaseReference _testRef =
+          FirebaseDatabase.instance.ref('activerequests');
+      DatabaseEvent _event = await _testRef.once();
+
+      Map<String, dynamic> tmp = {};
+      activeRequests = _event.snapshot.value as Map<String, dynamic>;
+      tmp = _event.snapshot.value as Map<String, dynamic>;
+
+      _testRef = FirebaseDatabase.instance.ref('uidToPhone');
+      _event = await _testRef.once();
+      Map<String, dynamic> contact = {};
+      contact = _event.snapshot.value as Map<String, dynamic>;
+
+      if (mounted) {
+        setState(() {
+          tmp.forEach((key, value) {
+            if (value["state"] == 2 || value["state"] == 3) {
+              logs[key] = value['logs'];
+              mp[key] = contact[key];
+              audiofiles[key] = value['voice'];
+            }
+          });
         });
-      });
 
-      int cnt = 0;
-      mp.forEach((key, value) async {
-        DatabaseReference _testRef =
-            FirebaseDatabase.instance.ref('requests/' + key);
-        DatabaseEvent _event = await _testRef.once();
-        if (_event.snapshot.value != null) {
-          List<dynamic> lst = _event.snapshot.value as List<dynamic>;
-          if (mounted) {
-            setState(() {
-              prevrequestLength[cnt] = lst.length.toString();
-            });
+        int cnt = 0;
+        mp.forEach((key, value) async {
+          DatabaseReference _testRef =
+              FirebaseDatabase.instance.ref('requests/' + key);
+          DatabaseEvent _event = await _testRef.once();
+          if (_event.snapshot.value != null) {
+            List<dynamic> lst = _event.snapshot.value as List<dynamic>;
+            if (mounted) {
+              setState(() {
+                prevrequestLength[cnt] = lst.length.toString();
+              });
+            }
           }
-        }
-        cnt++;
-      });
+          cnt++;
+        });
+      }
     }
   }
 
@@ -154,8 +192,10 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                       ),
                       child: Text("Submit"),
                       onPressed: () {
-                         notify_user(uid,
-                        "Request Rejected: Your request has been rejected. Admin remarks: " + RemarkController.text);
+                        notify_user(
+                            uid,
+                            "Request Rejected: Your request has been rejected. Admin remarks: " +
+                                RemarkController.text);
                         rejectUpdate(uid, RemarkController.text);
                         Navigator.pop(context);
                         Navigator.pushReplacement(context,
@@ -201,6 +241,9 @@ class _UploadStageScreen extends State<UploadStageScreen> {
         body: Scrollbar(
             child: CustomScrollView(
           slivers: <Widget>[
+            SliverToBoxAdapter(
+              child: buildSearch(),
+            ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -217,63 +260,65 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                   return ExpansionTile(
                     children: [
                       Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Container(
-                          width: 200,
-                          child: TextFormField(
-                            enabled: false,
-                            decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
-                                icon: Icon(Icons.phone),
-                                labelText: 'Phone'),
-                            controller: phCnt,
-                          )),
-                      Container(
-                          width: 200,
-                          padding: EdgeInsets.only(left: 30),
-                          child: TextFormField(
-                            enabled: false,
-                            decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
-                                icon: Icon(Icons.key),
-                                labelText: 'UID'),
-                            controller: uidCnt,
-                          )),
-                      Container(
-                          width: 200,
-                          padding: EdgeInsets.only(left: 30),
-                          child: TextFormField(
-                            enabled: false,
-                            decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
-                                icon: Icon(Icons.numbers),
-                                labelText: 'Number of request raised'),
-                            controller: noCnt,
-                          )),
-                      Container(
-                          width: 200,
-                          padding: EdgeInsets.only(left: 30),
-                          child: TextFormField(
-                            enabled: false,
-                            decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                icon: Icon(Icons.language),
-                                labelText: 'Language'),
-                            controller: langCnt,
-                          )),
-                      if(audiofiles[mp.keys.elementAt(index)] != '')
-                                audio(audiofiles[mp.keys.elementAt(index)])
-                      else Padding(
-                        padding: EdgeInsets.fromLTRB(100, 5, 5, 5),
-                        child: Text('No Voicenote Uploaded',
-                                    style: TextStyle(
-                                        fontSize: 20, color: Colors.grey)))
-                      ])
-                  ],
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                                width: 200,
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                      icon: Icon(Icons.phone),
+                                      labelText: 'Phone'),
+                                  controller: phCnt,
+                                )),
+                            Container(
+                                width: 200,
+                                padding: EdgeInsets.only(left: 30),
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                      icon: Icon(Icons.key),
+                                      labelText: 'UID'),
+                                  controller: uidCnt,
+                                )),
+                            Container(
+                                width: 200,
+                                padding: EdgeInsets.only(left: 30),
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                      icon: Icon(Icons.numbers),
+                                      labelText: 'Number of request raised'),
+                                  controller: noCnt,
+                                )),
+                            Container(
+                                width: 200,
+                                padding: EdgeInsets.only(left: 30),
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                      icon: Icon(Icons.language),
+                                      labelText: 'Language'),
+                                  controller: langCnt,
+                                )),
+                            if (audiofiles[mp.keys.elementAt(index)] != '')
+                              audio(audiofiles[mp.keys.elementAt(index)])
+                            else
+                              Padding(
+                                  padding: EdgeInsets.fromLTRB(100, 5, 5, 5),
+                                  child: Text('No Voicenote Uploaded',
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.grey)))
+                          ])
+                    ],
                     title: Row(
                       children: <Widget>[
                         SizedBox(
