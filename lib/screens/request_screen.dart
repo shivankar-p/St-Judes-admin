@@ -9,6 +9,8 @@ import 'loggedIn.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../widget/search_widget.dart';
+
 class RequestScreen extends StatefulWidget {
   @override
   _RequestScreen createState() {
@@ -28,52 +30,105 @@ class _RequestScreen extends State<RequestScreen> {
   Map<String, dynamic> activeRequests = {};
   List<int> requestLength = [];
   List<String> prevrequestLength = List.filled(100000, '0');
+  String query = '';
 
-  void _getActiverequests() async {
-    DatabaseReference _testRef =
-        FirebaseDatabase.instance.ref('activerequests');
-    DatabaseEvent _event = await _testRef.once();
+  Widget buildSearch() => SearchWidget(
+        text: query,
+        hintText: 'ID or User name',
+        onChanged: searchUser,
+      );
+
+  void searchUser(String str) {
+    // final books = allBooks.where((book) {
+    //   final titleLower = book.title.toLowerCase();
+    //   final authorLower = book.author.toLowerCase();
+    //   final searchLower = query.toLowerCase();
+
+    //   return titleLower.contains(searchLower) ||
+    //       authorLower.contains(searchLower);
+    // }).toList();
+
+    // setState(() {
+    //   this.query = query;
+    //   this.books = books;
+    // });
+    setState(() {
+      query = str;
+    });
 
     Map<String, dynamic> tmp = {};
-    activeRequests = _event.snapshot.value as Map<String, dynamic>;
-    tmp = _event.snapshot.value as Map<String, dynamic>;
 
-    _testRef = FirebaseDatabase.instance.ref('uidToPhone');
-    _event = await _testRef.once();
-    Map<String, dynamic> contact = {};
-    contact = _event.snapshot.value as Map<String, dynamic>;
+    mp.forEach((k, v) {
+      if (k.contains(query) || v["name"].contains(query)) {
+        tmp[k] = v;
+      }
+    });
 
-    if (mounted) {
-      setState(() {
-        mp = {};
-        logs = {};
-        requestLength = [];
-        tmp.forEach((key, value) {
-          if (value["state"] == 1) {
-            logs[key] = value['logs'];
-            mp[key] = contact[key];
-            audiofiles[key] = value['voice'];
-            //print(value['voice']);
-          }
+    print(tmp);
+
+    setState(() {
+      mp = tmp;
+    });
+
+    print(mp);
+    print("before");
+  }
+
+  void _getActiverequests() async {
+    print("\n\nGet Active Request Called..");
+    print(query);
+    if (query.isEmpty) {
+      DatabaseReference _testRef =
+          FirebaseDatabase.instance.ref('activerequests');
+      DatabaseEvent _event = await _testRef.once();
+
+      Map<String, dynamic> tmp = {};
+      activeRequests = _event.snapshot.value as Map<String, dynamic>;
+      tmp = _event.snapshot.value as Map<String, dynamic>;
+
+      _testRef = FirebaseDatabase.instance.ref('uidToPhone');
+      _event = await _testRef.once();
+      Map<String, dynamic> contact = {};
+      contact = _event.snapshot.value as Map<String, dynamic>;
+
+      if (mounted) {
+        setState(() {
+          mp = {};
+          logs = {};
+          requestLength = [];
+          tmp.forEach((key, value) {
+            if (value["state"] == 1) {
+              logs[key] = value['logs'];
+              mp[key] = contact[key];
+              audiofiles[key] = value['voice'];
+              //print(value['voice']);
+            }
+          });
         });
-      });
 
-      int cnt = 0;
-      mp.forEach((key, value) async {
-        DatabaseReference _testRef =
-            FirebaseDatabase.instance.ref('requests/' + key);
-        DatabaseEvent _event = await _testRef.once();
-        if (_event.snapshot.value != null) {
-          List<dynamic> lst = _event.snapshot.value as List<dynamic>;
-          if (mounted) {
-            setState(() {
-              prevrequestLength[cnt] = lst.length.toString();
-            });
+        int cnt = 0;
+        mp.forEach((key, value) async {
+          DatabaseReference _testRef =
+              FirebaseDatabase.instance.ref('requests/' + key);
+          DatabaseEvent _event = await _testRef.once();
+          if (_event.snapshot.value != null) {
+            List<dynamic> lst = _event.snapshot.value as List<dynamic>;
+            if (mounted) {
+              setState(() {
+                prevrequestLength[cnt] = lst.length.toString();
+              });
+            }
           }
-        }
-        cnt++;
-      });
-    }
+          cnt++;
+        });
+      }
+
+      print(mp);
+      // mp["12000"] = {"name": "Someone", "phone": "+090909090", "requests": "1"};
+
+      // print(mp);
+    } else
+      print("Query not empty!!");
   }
 
   int getChildCount() {
@@ -208,6 +263,9 @@ class _RequestScreen extends State<RequestScreen> {
         body: Scrollbar(
             child: CustomScrollView(
           slivers: <Widget>[
+            SliverToBoxAdapter(
+              child: buildSearch(),
+            ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
