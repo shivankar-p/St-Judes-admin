@@ -194,7 +194,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                       onPressed: () {
                         notify_user(
                             uid,
-                            "Request Rejected: Your request has been rejected. Admin remarks: " +
+                            "Request Rejected:Your request has been rejected. Admin remarks:" +
                                 RemarkController.text);
                         rejectUpdate(uid, RemarkController.text);
                         Navigator.pop(context);

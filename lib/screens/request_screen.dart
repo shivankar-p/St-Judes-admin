@@ -207,7 +207,7 @@ class _RequestScreen extends State<RequestScreen> {
                       onPressed: () {
                         notify_user(
                             uid,
-                            "Request Rejected: Your request has been rejected. Admin remarks: " +
+                            "Request Rejected:Your request has been rejected. Admin remarks- " +
                                 RemarkController.text);
                         rejectUpdate(uid, RemarkController.text);
                         Navigator.pop(context);
@@ -491,7 +491,7 @@ class _RequestScreen extends State<RequestScreen> {
                                       label: 'Move to upload stage',
                                       onPressed: () {
                                         notify_user(mp.keys.elementAt(index),
-                                            "Update: Your request has been moved to the upload stage.Please upload requested documents");
+                                            "Update:Your request has been moved to the upload stage.Please upload requested documents");
 
                                         saveLogs(
                                             catController.text,

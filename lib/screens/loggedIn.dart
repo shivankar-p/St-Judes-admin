@@ -62,7 +62,7 @@ class _LoggedInScreenState extends State<LoggedInScreen>
 
     tmp.forEach((key, value) {
       if (value["state"] == 2) {
-        String msg = "Reminder: Please upload the requested documents!";
+        String msg = "Reminder:Please upload the requested documents!";
         _sendNotification(key, msg);
       }
     });

@@ -491,12 +491,12 @@ class _verifyScreen extends State<verifyScreen> {
                                               onPressed: () async {
                                                 notify_user(
                                                     widget.uid,
-                                                    "Document Verified: Your document " +
+                                                    "Document Verified:Your document " +
                                                         docs[getindex(
                                                             requestedDocs.keys
                                                                 .elementAt(
                                                                     index))] +
-                                                        "has been verified!");
+                                                        " has been verified!");
                                                 verifyDoc(index);
                                               }))
                                           : Text('Verified',
@@ -532,7 +532,7 @@ class _verifyScreen extends State<verifyScreen> {
                                                             requestedDocs.keys
                                                                 .elementAt(
                                                                     index))] +
-                                                        "has been Rejected. Please reupload the document");
+                                                        " has been Rejected. Please reupload the document");
                                                 declineDoc(index);
                                               }))
                                           : Icon(
@@ -646,7 +646,7 @@ class _verifyScreen extends State<verifyScreen> {
                                                                               RemarkController.text);
                                                                           notify_user(
                                                                               widget.uid,
-                                                                              "Request Approved: Your Requested has been approved.\n Admin Remarks: " + RemarkController.text);
+                                                                              "Request Approved:Your Requested has been approved.\n Admin Remarks- " + RemarkController.text);
 
                                                                           Navigator.pop(
                                                                               context);
