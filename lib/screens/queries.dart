@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../flutter_beautiful_popup-1.7.0/lib/main.dart';
 import '../utils/upload_docs_picker.dart';
+import '../widget/search_widget.dart';
 
 class QueriesScreen extends StatefulWidget {
   @override
@@ -16,10 +17,50 @@ class _QueriesScreen extends State<QueriesScreen> {
   //const WeeklyForecastList({Key? key}) : super(key: key);
   Map<String, dynamic> mp = {};
   Map<String, dynamic> mp2 = {};
+
+  String query = '';
+
+  Widget buildSearch() => SearchWidget(
+        text: query,
+        hintText: 'ID or User name',
+        onChanged: searchUser,
+      );
+
+  void searchUser(String str) {
+    //print("Searching User\n\n");
+    str = str.toLowerCase();
+
+    setState(() {
+      query = str;
+    });
+
+    Map<String, dynamic> tmp = {};
+
+    mp.forEach((k, v) {
+      String name = v["name"];
+      name = name.toLowerCase();
+
+      if (k.contains(query) || name.contains(query)) {
+        tmp[k] = v;
+      }
+    });
+
+    //print(tmp);
+
+    setState(() {
+      mp = tmp;
+    });
+
+    //print(mp);
+    //print("before");
+  }
+
   void _getQueries() async {
-    DatabaseReference _testRef = FirebaseDatabase.instance.ref('queries');
-    DatabaseEvent _event = await _testRef.once();
-    mp = _event.snapshot.value as Map<String, dynamic>;
+    if (query.isEmpty) {
+      DatabaseReference _testRef = FirebaseDatabase.instance.ref('queries');
+      DatabaseEvent _event = await _testRef.once();
+      mp = _event.snapshot.value as Map<String, dynamic>;
+    }
   }
 
   Future getphone(uid) async {
@@ -54,6 +95,9 @@ class _QueriesScreen extends State<QueriesScreen> {
         body: Scrollbar(
             child: CustomScrollView(
           slivers: <Widget>[
+            SliverToBoxAdapter(
+              child: buildSearch(),
+            ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -92,8 +136,9 @@ class _QueriesScreen extends State<QueriesScreen> {
                           return Text('Something went wrong');
                         } else if (snapshot.hasData) {
                           return CircleAvatar(
-                            child: Text(snapshot.data.toString()[0] +
-                                snapshot.data.toString()[1],
+                            child: Text(
+                                snapshot.data.toString()[0] +
+                                    snapshot.data.toString()[1],
                                 style: TextStyle(color: Colors.black)),
                             radius: 70,
                             backgroundColor: Colors.orange.shade200,
@@ -104,53 +149,54 @@ class _QueriesScreen extends State<QueriesScreen> {
                       },
                     ),
                     subtitle: Text(mp.values.elementAt(index)['msg']),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(mp.values.elementAt(index)['date'] + '      ' + mp.values.elementAt(index)['time']),
-                        Icon(Icons.arrow_drop_down_sharp),
-                      ]
-                    ),
+                    trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Text(mp.values.elementAt(index)['date'] +
+                          '      ' +
+                          mp.values.elementAt(index)['time']),
+                      Icon(Icons.arrow_drop_down_sharp),
+                    ]),
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                      Container(
-                          width: 200,
-                          child: TextFormField(
-                            enabled: false,
-                            decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.fromLTRB(10, 5, 5, 5),
-                                icon: Icon(Icons.key),
-                                labelText: 'UID'),
-                            controller: uidCnt,
-                          )),
-                      Container(
-                          width: 200,
-                          child: FutureBuilder(
-                              future: phone,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasError) {
-                                  print(
-                                      'There is an error ${snapshot.error.toString()}');
-                                  return Text('Something went wrong');
-                                } else if (snapshot.hasData) {
-                                  phCnt.text = snapshot.data.toString();
-                                  return TextFormField(
-                                    enabled: false,
-                                    decoration: InputDecoration(
-                                        contentPadding:
-                                            EdgeInsets.fromLTRB(10, 5, 5, 5),
-                                        icon: Icon(Icons.phone),
-                                        labelText: 'Phone'),
-                                    controller: phCnt,
-                                  );
-                                } else {
-                                  return CircularProgressIndicator();
-                                }
-                              })),
-          ])],
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                                width: 200,
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                      icon: Icon(Icons.key),
+                                      labelText: 'UID'),
+                                  controller: uidCnt,
+                                )),
+                            Container(
+                                width: 200,
+                                child: FutureBuilder(
+                                    future: phone,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasError) {
+                                        print(
+                                            'There is an error ${snapshot.error.toString()}');
+                                        return Text('Something went wrong');
+                                      } else if (snapshot.hasData) {
+                                        phCnt.text = snapshot.data.toString();
+                                        return TextFormField(
+                                          enabled: false,
+                                          decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.fromLTRB(
+                                                      10, 5, 5, 5),
+                                              icon: Icon(Icons.phone),
+                                              labelText: 'Phone'),
+                                          controller: phCnt,
+                                        );
+                                      } else {
+                                        return CircularProgressIndicator();
+                                      }
+                                    })),
+                          ])
+                    ],
                   );
                 },
                 childCount: getChildCount(),
