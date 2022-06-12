@@ -4,6 +4,7 @@ import 'package:bubble/bubble.dart';
 import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import '../api/translation_api.dart';
 
 class ChatRoom extends StatefulWidget {
   @override
@@ -12,8 +13,6 @@ class ChatRoom extends StatefulWidget {
   ChatRoom(this.uid, this.name);
   _ChatRoomState createState() => _ChatRoomState();
 }
-
-
 
 class _ChatRoomState extends State<ChatRoom> {
   bool emptyString = true;
@@ -39,22 +38,39 @@ class _ChatRoomState extends State<ChatRoom> {
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('notifications/' + widget.uid);
     //DatabaseReference _newPostRef = _testRef.push();
+
+    DatabaseReference _langRef =
+        FirebaseDatabase.instance.ref('uidToPhone/' + widget.uid + '/language');
+    DatabaseEvent _lang = await _langRef.once();
+
+    String lang = _lang.snapshot.value as String;
+
+    TranslationApi translator = TranslationApi();
+
+    String translated_msg = await translator.translate(msg, 'en', lang);
+
     _testRef.child(chatMsgs.length.toString()).set({
       'date': date,
-      'msg': msg,
+      'msg': translated_msg,
       'time': time,
     });
   }
 
+  
+    
+
   Widget build(BuildContext context) {
     _getChats();
+    
     return Scaffold(
         appBar: AppBar(
           iconTheme: IconThemeData(
             color: Colors.black, //change your color here
           ),
-          title: Text(widget.name + '\'s Notifications',
-          style: TextStyle(color: Colors.black),),
+          title: Text(
+            widget.name + '\'s Notifications',
+            style: TextStyle(color: Colors.black),
+          ),
           backgroundColor: Colors.orange.shade400,
         ),
         backgroundColor: Colors.orange.shade100,
@@ -171,25 +187,24 @@ class _ChatRoomState extends State<ChatRoom> {
                         },
                       )) */
                       CircleAvatar(
-                  backgroundColor: Colors.orange,
-                  radius: 23,
-                  child:
-                      RawMaterialButton(
-                        elevation: 2.0,
-                        fillColor: Colors.orange,
-                        child: Icon(
-                          CupertinoIcons.paperplane,
-                          size: 15.0,
-                        ),
-                        padding: EdgeInsets.all(5.0),
-                        shape: CircleBorder(),
-                        onPressed: () {
-                          if (_inputController.text.length > 0) {
-                            _sendNotification(_inputController.text);
-                            _inputController.text = '';
-                          }
-                        },
-                      )))
+                          backgroundColor: Colors.orange,
+                          radius: 23,
+                          child: RawMaterialButton(
+                            elevation: 2.0,
+                            fillColor: Colors.orange,
+                            child: Icon(
+                              CupertinoIcons.paperplane,
+                              size: 15.0,
+                            ),
+                            padding: EdgeInsets.all(5.0),
+                            shape: CircleBorder(),
+                            onPressed: () {
+                              if (_inputController.text.length > 0) {
+                                _sendNotification(_inputController.text);
+                                _inputController.text = '';
+                              }
+                            },
+                          )))
             ],
           )
         ]));

@@ -52,6 +52,7 @@ dev_dependencies:
     sdk: flutter
   fluttertoast: ^8.0.9
   google_sign_in: ^5.3.2
+  html_unescape: ^2.0.0
   http: ^0.13.4
   just_audio: ^0.9.24
   linkify: ^4.1.0
@@ -59,6 +60,7 @@ dev_dependencies:
   provider: ^6.0.3
   smooth_page_indicator: ^1.0.0+2
   sticky_headers: ^0.3.0+2
+  translator: ^0.1.7
   uri_to_file: ^0.2.0
   url_launcher: ^6.1.3
 

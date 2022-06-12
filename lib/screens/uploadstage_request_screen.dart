@@ -8,7 +8,7 @@ import '../utils/upload_docs_picker.dart';
 import '../utils/audio.dart';
 import 'package:intl/intl.dart';
 import '../widget/search_widget.dart';
-
+import '../api/translation_api.dart';
 class UploadStageScreen extends StatefulWidget {
   @override
   _UploadStageScreen createState() {
@@ -216,12 +216,22 @@ class _UploadStageScreen extends State<UploadStageScreen> {
         FirebaseDatabase.instance.ref('notifications/' + uid);
     DatabaseEvent _event = await _testRef.once();
 
+     DatabaseReference _langRef =
+        FirebaseDatabase.instance.ref('uidToPhone/' + uid + '/language');
+    DatabaseEvent _lang = await _langRef.once();
+
+    String lang = _lang.snapshot.value as String;
+
+    TranslationApi translator = TranslationApi();
+
+    String translated_msg = await translator.translate(msg, 'en', lang);
+
     List<dynamic> chatMsgs = [];
     if (_event.snapshot.value != null)
       chatMsgs = _event.snapshot.value as List<dynamic>;
     _testRef.child(chatMsgs.length.toString()).set({
       'date': date,
-      'msg': msg,
+      'msg': translated_msg,
       'time': time,
     });
   }
