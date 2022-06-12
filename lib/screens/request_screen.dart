@@ -38,7 +38,7 @@ class _RequestScreen extends State<RequestScreen> {
       );
 
   void searchUser(String str) {
-    print("Searching User\n\n");
+    //print("Searching User\n\n");
     str = str.toLowerCase();
 
     setState(() {
@@ -56,14 +56,14 @@ class _RequestScreen extends State<RequestScreen> {
       }
     });
 
-    print(tmp);
+    //print(tmp);
 
     setState(() {
       mp = tmp;
     });
 
-    print(mp);
-    print("before");
+    //print(mp);
+    //print("before");
   }
 
   void _getActiverequests() async {
@@ -113,7 +113,7 @@ class _RequestScreen extends State<RequestScreen> {
         });
       }
 
-      print(mp);
+      //print(mp);
       // mp["12000"] = {"name": "Someone", "phone": "+090909090", "requests": "1"};
 
       // print(mp);

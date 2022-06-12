@@ -54,14 +54,14 @@ class _UploadStageScreen extends State<UploadStageScreen> {
       }
     });
 
-    print(tmp);
+    //print(tmp);
 
     setState(() {
       mp = tmp;
     });
 
-    print(mp);
-    print("before");
+    //print(mp);
+    //print("before");
   }
 
   void _getActiverequests() async {

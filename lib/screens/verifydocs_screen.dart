@@ -25,6 +25,8 @@ import 'package:archive/archive.dart';
 import 'dart:typed_data';
 import 'package:uri_to_file/uri_to_file.dart';
 import '../utils/upload_docs_picker.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class verifyScreen extends StatefulWidget {
   String uid;
@@ -69,41 +71,24 @@ List<String> dockeys = [
   "medical_report"
 ];
 
-/* Map<String, int> docname = {
-  "aadhar": 0,
-  "pan": 1,
-  "birth": 2,
-  "Passport": 3,
-  "photo": 4,
-  "license": 5,
-  "caste": 6,
-  "voter": 7,
-  "ssc": 8,
-  "10th": 9,
-  "12th": 10,
-  "bonafide": 11,
-  "reportcard": 12,
-  "prescription": 13,
-  "medical_report": 14
-}; */
-
 class _verifyScreen extends State<verifyScreen> {
   Map<String, dynamic> requestedDocs = {};
   int verifiedDocCount = 0;
   bool showApproveButton = false;
+  int len = 0;
   void getRequestedDocs() async {
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests/' + widget.uid + '/docs');
     DatabaseEvent _event = await _testRef.once();
 
-    /* String url =
-        await FirebaseStorage.instance.ref().child('cat.jpg').getDownloadURL(); */
-    //print(url);
-
     if (mounted) {
       setState(() {
         verifiedDocCount = 0;
-        requestedDocs = _event.snapshot.value as Map<String, dynamic>;
+        if (_event.snapshot.value != null) {
+          requestedDocs = _event.snapshot.value as Map<String, dynamic>;
+          len = requestedDocs.length;
+        } else
+          requestedDocs = {};
 
         requestedDocs.forEach((key, value) {
           if (value != null) {
@@ -163,8 +148,14 @@ class _verifyScreen extends State<verifyScreen> {
 
     mp.forEach(
       (key, value) {
-        filename.add(key + '.jpg');
-        files.add(value['url']);
+        int cnt = 0;
+        value['url'].forEach(
+          (keychild, valuechild) {
+            filename.add(key + '_' + cnt.toString() + getExtension(valuechild));
+            files.add(valuechild);
+            cnt++;
+          },
+        );
       },
     );
 
@@ -283,6 +274,15 @@ class _verifyScreen extends State<verifyScreen> {
     });
   }
 
+  String getExtension(url) {
+    url = url.toString();
+    url = url.split('?')[0];
+    url = url.split('/').last;
+    return url.contains('.') ? url.substring(url.lastIndexOf('.')) : "";
+  }
+
+  List<int> cur = List.filled(100, 0);
+  List<dynamic> cont = List.filled(100, CarouselController());
   Widget build(BuildContext context) {
     getRequestedDocs();
     return Scaffold(
@@ -296,6 +296,70 @@ class _verifyScreen extends State<verifyScreen> {
           thicknessWhileDragging: 10,
           child: ListView.builder(
             itemBuilder: (context, index) {
+              bool flag = true;
+              Map<String, dynamic> urlmap = {};
+
+              if (requestedDocs.values.elementAt(index)['url'] == '')
+                flag = false;
+              else {
+                urlmap = requestedDocs.values.elementAt(index)['url'];
+              }
+              List<String> imgs = [];
+              int doclen = 0;
+              if (flag) {
+                urlmap.forEach((key, value) {
+                  imgs.add(value);
+                });
+                doclen = imgs.length;
+              }
+
+              void animateToSlide(int index) =>
+                  cont[index].animateToPage(index);
+
+              Widget buildIndicator() => AnimatedSmoothIndicator(
+                    activeIndex: cur[index],
+                    onDotClicked: animateToSlide,
+                    count: imgs.length,
+                    effect: SlideEffect(
+                        activeDotColor: Colors.orange,
+                        dotWidth: 15,
+                        dotHeight: 15),
+                  );
+
+              void previous() {
+                cont[index].previousPage(duration: Duration(milliseconds: 500));
+              }
+
+              void next() {
+                cont[index].nextPage(duration: Duration(milliseconds: 500));
+              }
+
+              Widget buildButtons({bool stretch = false}) =>
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.all(10),
+                          primary: Colors.orange,
+                        ),
+                        onPressed: previous,
+                        child: Icon(Icons.arrow_back)),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Text((cur[index]+1).toString() + '/' + imgs.length.toString(),
+                    style: TextStyle(fontSize: 20),),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.all(10),
+                          primary: Colors.orange,
+                        ),
+                        onPressed: next,
+                        child: Icon(Icons.arrow_forward)),
+                  ]);
+
               return Material(
                   child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -304,13 +368,81 @@ class _verifyScreen extends State<verifyScreen> {
                       /* autofocus: false,
                       contentPadding: EdgeInsets.fromLTRB(300, 25, 5, 5), */
                       children: [
-                        /* Image.network(
-                            ), */
-                        if (requestedDocs.values.elementAt(index)['url'] == '')
+                        /* if (requestedDocs.values.elementAt(index)['url'] == '')
                           Text('')
                         else
                           Image.network(
-                              requestedDocs.values.elementAt(index)['url'])
+                              requestedDocs.values.elementAt(index)['url']) */
+                        flag == false
+                            ? Text('')
+                            : (Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    buildButtons(),
+                                    const SizedBox(
+                                      height: 32,
+                                    ),
+                                    buildIndicator(),
+                                    const SizedBox(
+                                      height: 32,
+                                    ),
+                                    CarouselSlider(
+                                      carouselController: cont[index],
+                                      options: CarouselOptions(
+                                          height: 400,
+                                          enableInfiniteScroll: false,
+                                          autoPlayAnimationDuration:
+                                              Duration(seconds: 2),
+                                          viewportFraction: 1,
+                                          onPageChanged: (car_index, reason) =>
+                                              {
+                                                setState(() =>
+                                                    cur[index] = car_index)
+                                              }),
+                                      items: imgs.map((i) {
+                                        return Builder(
+                                          builder: (BuildContext context) {
+                                            return Container(
+                                                width: (getExtension(i) !=
+                                                        '.pdf'
+                                                    ? (MediaQuery.of(context)
+                                                        .size
+                                                        .width)
+                                                    : 120),
+                                                margin: EdgeInsets.symmetric(
+                                                    horizontal: 5.0),
+                                                child: getExtension(i) != '.pdf'
+                                                    ? Image.network(i)
+                                                    : (Container(
+                                                        alignment:
+                                                            Alignment.topCenter,
+                                                        width: 50,
+                                                        child: ElevatedButton(
+                                                          child: Row(children: [
+                                                            Text('open PDF'),
+                                                            Icon(Icons
+                                                                .picture_as_pdf)
+                                                          ]),
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                                  primary: Colors
+                                                                      .orange,
+                                                                  minimumSize:
+                                                                      Size(70,
+                                                                          60)),
+                                                          onPressed: () {
+                                                            html.window.open(
+                                                                i, "_blank");
+                                                          },
+                                                        ))));
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ]))
                       ],
                       title: Row(
                         children: <Widget>[
