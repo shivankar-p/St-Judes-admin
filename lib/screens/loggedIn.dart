@@ -6,7 +6,8 @@ import 'uploadstage_request_screen.dart';
 import 'queries.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
-
+import 'counselling.dart';
+import '../api/translation_api.dart';
 class LoggedInScreen extends StatefulWidget {
   @override
   _LoggedInScreenState createState() => _LoggedInScreenState();
@@ -27,7 +28,7 @@ class _LoggedInScreenState extends State<LoggedInScreen>
   void initState() {
     super.initState();
 
-    _tabController = TabController(vsync: this, initialIndex: 0, length: 3);
+    _tabController = TabController(vsync: this, initialIndex: 0, length: 4);
     _tabController.addListener(() {
       showFab = true;
       setState(() {});
@@ -38,16 +39,28 @@ class _LoggedInScreenState extends State<LoggedInScreen>
     String date = DateFormat("dd MMMM yyyy").format(DateTime.now());
     String time = DateFormat("HH:mm:ss").format(DateTime.now());
 
+
+
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('notifications/' + uid);
     DatabaseEvent _event = await _testRef.once();
 
-    List<dynamic> chatMsgs = [];
+
+     DatabaseReference _langRef =
+        FirebaseDatabase.instance.ref('uidToPhone/' + uid + '/language');
+    DatabaseEvent _lang = await _langRef.once();
+
+    String lang = _lang.snapshot.value as String;
+
+    TranslationApi translator = TranslationApi();
+
+    String translated_msg = await translator.translate(msg, 'en', lang);
+
     if (_event.snapshot.value != null)
-      chatMsgs = _event.snapshot.value as List<dynamic>;
-    _testRef.child(chatMsgs.length.toString()).set({
+     
+    _testRef.push().set({
       'date': date,
-      'msg': msg,
+      'msg': translated_msg,
       'time': time,
     });
   }
@@ -95,6 +108,9 @@ class _LoggedInScreenState extends State<LoggedInScreen>
             Tab(
               text: "Queries",
             ),
+            Tab(
+              text: "Counselling",
+            ),
           ],
         ),
         actions: <Widget>[
@@ -119,7 +135,9 @@ class _LoggedInScreenState extends State<LoggedInScreen>
         children: <Widget>[
           RequestScreen(),
           UploadStageScreen(),
-          QueriesScreen()
+          QueriesScreen(),
+          CounsellingScreen()
+          //QueriesScreen()
         ],
       ),
     );

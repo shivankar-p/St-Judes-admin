@@ -275,10 +275,9 @@ class _verifyScreen extends State<verifyScreen> {
 
     String translated_msg = await translator.translate(msg, 'en', lang);
 
-    List<dynamic> chatMsgs = [];
+    
     if (_event.snapshot.value != null)
-      chatMsgs = _event.snapshot.value as List<dynamic>;
-    _testRef.child(chatMsgs.length.toString()).set({
+    _testRef.push().set({
       'date': date,
       'msg': translated_msg,
       'time': time,
@@ -579,7 +578,9 @@ class _verifyScreen extends State<verifyScreen> {
                                                 context: context,
                                                 builder:
                                                     (BuildContext context) {
-                                                  return AlertDialog(
+                                                  return Theme(
+                                                    data: ThemeData(primarySwatch: Colors.orange),
+                                                    child: AlertDialog(
                                                     content: Stack(
                                                       children: <Widget>[
                                                         Positioned(
@@ -600,6 +601,7 @@ class _verifyScreen extends State<verifyScreen> {
                                                           ),
                                                         ),
                                                         Form(
+                                                          
                                                           child: Column(
                                                             mainAxisSize:
                                                                 MainAxisSize
@@ -662,7 +664,7 @@ class _verifyScreen extends State<verifyScreen> {
                                                         ),
                                                       ],
                                                     ),
-                                                  );
+                                                  ));
                                                 });
                                           })))
                                   : Text(''),

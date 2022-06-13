@@ -17,7 +17,7 @@ class ChatRoom extends StatefulWidget {
 class _ChatRoomState extends State<ChatRoom> {
   bool emptyString = true;
   TextEditingController _inputController = TextEditingController();
-  List<dynamic> chatMsgs = [];
+  Map<String, dynamic>  chatMsgs = {};
   final DateTime currentDate = DateTime.now();
   void _getChats() async {
     DatabaseReference _testRef =
@@ -26,7 +26,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
     //print(currentDate.date);
 
-    chatMsgs = event.snapshot.value as List<dynamic>;
+    chatMsgs = event.snapshot.value as Map<String, dynamic>;
     //rprint(event.snapshot.value.toString());
     //print(mp.values.elementAt(0)['name']);
   }
@@ -49,7 +49,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
     String translated_msg = await translator.translate(msg, 'en', lang);
 
-    _testRef.child(chatMsgs.length.toString()).set({
+    _testRef.push().set({
       'date': date,
       'msg': translated_msg,
       'time': time,
@@ -86,9 +86,9 @@ class _ChatRoomState extends State<ChatRoom> {
                   (context, index) {
                     //print(chatMsgs[index]['date'].toString());
                     return MessageBubble(
-                        chatMsgs[index]['msg'].toString(),
-                        chatMsgs[index]['time'].toString(),
-                        chatMsgs[index]['date'].toString());
+                        chatMsgs.values.elementAt(index)['msg'].toString(),
+                        chatMsgs.values.elementAt(index)['time'].toString(),
+                        chatMsgs.values.elementAt(index)['date'].toString());
                   },
                   childCount: chatMsgs.length,
                 )),

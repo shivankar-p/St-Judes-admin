@@ -9,6 +9,8 @@ import '../utils/audio.dart';
 import 'package:intl/intl.dart';
 import '../widget/search_widget.dart';
 import '../api/translation_api.dart';
+import 'package:intl/intl.dart';
+
 class UploadStageScreen extends StatefulWidget {
   @override
   _UploadStageScreen createState() {
@@ -117,11 +119,14 @@ class _UploadStageScreen extends State<UploadStageScreen> {
       int index) async {
     DatabaseReference _testRef =
         FirebaseDatabase.instance.ref('activerequests/' + uid);
+    
+    String date = DateFormat("dd MMMM yyyy").format(DateTime.now());
+    String time = DateFormat("HH:mm:ss").format(DateTime.now());
 
     _testRef.child('logs').set({
       'category': cat,
       'amount': amt,
-      'description': desc,
+      'description': desc + '  \n-' + date + ',  ' + time,
       'remarks': remark
     });
   }
@@ -226,10 +231,9 @@ class _UploadStageScreen extends State<UploadStageScreen> {
 
     String translated_msg = await translator.translate(msg, 'en', lang);
 
-    List<dynamic> chatMsgs = [];
+    
     if (_event.snapshot.value != null)
-      chatMsgs = _event.snapshot.value as List<dynamic>;
-    _testRef.child(chatMsgs.length.toString()).set({
+    _testRef.push().set({
       'date': date,
       'msg': translated_msg,
       'time': time,

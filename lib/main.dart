@@ -5,6 +5,7 @@ import 'firebase_options.dart';
 import 'screens/loggedIn.dart';
 import 'utils/final_remark_popup.dart';
 import 'utils/audio.dart';
+import 'screens/login.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -42,6 +44,7 @@ class MyApp extends StatelessWidget {
           } else if (snapshot.hasData) {
             //return LoggedInScreen();
             return LoggedInScreen();
+            //return Login();
             //return audio();
           } else {
             return CircularProgressIndicator();
