@@ -32,6 +32,10 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
+  google_fonts: ^2.1.0
+  flutter_svg: ^0.22.0
+  fl_chart: ^0.36.1
+  data_table_2: ^2.0.3
   archive: ^3.3.0
   audioplayer: ^0.8.1
   bubble: ^1.2.1
@@ -74,7 +78,8 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
-    - images/
+    - assets/images/
+    - assets/icons/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
   # For details regarding adding assets from package dependencies, see

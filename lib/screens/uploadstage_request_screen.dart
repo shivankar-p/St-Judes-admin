@@ -11,6 +11,15 @@ import '../widget/search_widget.dart';
 import '../api/translation_api.dart';
 import 'package:intl/intl.dart';
 
+
+class Constants {
+  static const String inc = 'Least no of requests';
+  static const String Date = 'Request Date';
+  static const String dec = 'Most no of requests';
+
+  static const List<String> choices = <String>[inc, Date, dec];
+}
+
 class UploadStageScreen extends StatefulWidget {
   @override
   _UploadStageScreen createState() {
@@ -214,6 +223,12 @@ class _UploadStageScreen extends State<UploadStageScreen> {
         });
   }
 
+  void choiceAction(String choice) {
+    if (choice == Constants.inc) {
+      this.isSorted = !this.isSorted;
+    }
+  }
+
   void notify_user(uid, msg) async {
     String date = DateFormat("dd MMMM yyyy").format(DateTime.now());
     String time = DateFormat("HH:mm:ss").format(DateTime.now());
@@ -256,142 +271,22 @@ class _UploadStageScreen extends State<UploadStageScreen> {
             child: CustomScrollView(
           slivers: <Widget>[
             SliverToBoxAdapter(
-              child: buildSearch(),
+              child: Row(children: [
+                buildSearch(),
+                PopupMenuButton<String>(
+                  icon: Icon(Icons.sort),
+                  onSelected: choiceAction,
+                  itemBuilder: (BuildContext context) {
+                    return Constants.choices.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
+                )
+              ]),
             ),
-            SliverToBoxAdapter(
-                child: ElevatedButton(
-                    child: const Text('Sort'),
-                    onPressed: () {
-                      TextEditingController catController =
-                          TextEditingController();
-                      TextEditingController amtController =
-                          TextEditingController();
-                      TextEditingController descController =
-                          TextEditingController();
-                      TextEditingController remarkController =
-                          TextEditingController();
-
-                      final popup = BeautifulPopup(
-                        context: context,
-                        template: TemplateTerm,
-                      );
-
-                      popup.show(
-                        title: "Sort",
-                        content: Scrollbar(
-                            child: SingleChildScrollView(
-                                child: Form(
-                                    child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                              CheckboxListTile(
-                                value: this.isSorted,
-                                title: Text("least number of requests made"),
-                                onChanged: (bool? value) {
-                                  this.isSorted = !this.isSorted;
-                                },
-                              ),
-                              CheckboxListTile(
-                                value: false,
-                                title: Text("Date"),
-                                onChanged: (bool? value) {
-                                  value = true;
-                                },
-                              ),
-                              CheckboxListTile(
-                                value: false,
-                                title: Text("Maximum requests made"),
-                                onChanged: (bool? value) {
-                                  value = true;
-                                },
-                              ),
-                            ])))),
-                        close: Text(''),
-                        barrierDismissible: true,
-                        actions: [
-                          popup.button(
-                            label: 'Save',
-                            onPressed: () {
-                              /* Navigator.pop(context);
-                                          RequestScreen(); */
-                              // filterByLanguage(catController.text);
-                            },
-                          ),
-                        ],
-                        // bool barrierDismissible = false,
-                        // Widget close,
-                      );
-                    })),
-            SliverToBoxAdapter(
-                child: ElevatedButton(
-                    child: const Text('Filters'),
-                    onPressed: () {
-                      TextEditingController catController =
-                          TextEditingController();
-                      TextEditingController amtController =
-                          TextEditingController();
-                      TextEditingController descController =
-                          TextEditingController();
-                      TextEditingController remarkController =
-                          TextEditingController();
-
-                      final popup = BeautifulPopup(
-                        context: context,
-                        template: TemplateTerm,
-                      );
-
-                      popup.show(
-                        title: "FilterView",
-                        content: Scrollbar(
-                            child: SingleChildScrollView(
-                                child: Form(
-                                    child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                              TextFormField(
-                                decoration: const InputDecoration(
-                                  icon: const Icon(Icons.category),
-                                  hintText: 'English',
-                                  labelText: 'Language',
-                                ),
-                                controller: catController,
-                              ),
-                              TextFormField(
-                                  decoration: const InputDecoration(
-                                    icon: const Icon(Icons.currency_rupee),
-                                    hintText: '10000',
-                                    labelText: 'Maximum Amount',
-                                  ),
-                                  controller: amtController,
-                                  keyboardType: TextInputType.number),
-                              TextFormField(
-                                decoration: const InputDecoration(
-                                  icon: const Icon(Icons.description),
-                                  hintText: '12',
-                                  labelText: 'Number Of Requests made',
-                                ),
-                                controller: descController,
-                                maxLines: null,
-                              ),
-                            ])))),
-                        close: Text(''),
-                        barrierDismissible: true,
-                        actions: [
-                          popup.button(
-                            label: 'Save',
-                            onPressed: () {
-                              /* Navigator.pop(context);
-                                          RequestScreen(); */
-                              // filterByLanguage(catController.text);
-                            },
-                          ),
-                        ],
-                        // bool barrierDismissible = false,
-                        // Widget close,
-                      );
-                    })),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {

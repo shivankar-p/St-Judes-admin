@@ -8,6 +8,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'counselling.dart';
 import '../api/translation_api.dart';
+import '../main.dart';
 class LoggedInScreen extends StatefulWidget {
   @override
   _LoggedInScreenState createState() => _LoggedInScreenState();
@@ -114,6 +115,26 @@ class _LoggedInScreenState extends State<LoggedInScreen>
           ],
         ),
         actions: <Widget>[
+           Padding(
+            padding: EdgeInsets.only(right: 20.0),
+            child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        child: Icon(
+                          Icons.dashboard,
+                          size: 26,
+                          ),
+                        onTap: () {
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyApp()),
+                              (Route<dynamic> route) => false,
+                              );
+                        },
+                      ),
+                  ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5.0),
           ),

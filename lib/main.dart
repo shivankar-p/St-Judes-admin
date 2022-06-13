@@ -6,7 +6,11 @@ import 'screens/loggedIn.dart';
 import 'utils/final_remark_popup.dart';
 import 'utils/audio.dart';
 import 'screens/login.dart';
-
+import 'constants.dart';
+import 'controllers/MenuController.dart';
+import '/screens/main/main_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -35,6 +39,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.orange,
       ),
+      /* home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (context) => MenuController(),
+          ),
+        ],
+        child: MainScreen(), */
       home: FutureBuilder(
         future: _fbapp,
         builder: (context, snapshot) {

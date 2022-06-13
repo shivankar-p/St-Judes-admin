@@ -47,13 +47,12 @@ class _CounsellingScreen extends State<CounsellingScreen> {
 
     String translated_msg = await translator.translate(msg, 'en', lang);
 
-    
     if (_event.snapshot.value != null)
-    _testRef.push().set({
-      'date': date,
-      'msg': translated_msg,
-      'time': time,
-    });
+      _testRef.push().set({
+        'date': date,
+        'msg': translated_msg,
+        'time': time,
+      });
   }
 
   void searchUser(String str) {
@@ -128,6 +127,13 @@ class _CounsellingScreen extends State<CounsellingScreen> {
   void openlink(url) {
     html.window.open(url, "_blank");
   }
+
+  void closeCounselling(uid) {
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('counselling/' + uid);
+    _testRef.remove();
+  }
+
 
   dynamic getpopup(String uid) {
     TextEditingController timeController = TextEditingController();
@@ -284,28 +290,48 @@ class _CounsellingScreen extends State<CounsellingScreen> {
                         }
                       },
                     ),
-                    trailing: mp.values.elementAt(index)['state'] == 1
-                        ? (ElevatedButton(
-                            child: const Text('Accept'),
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(90, 60),
-                              primary: Colors.orange,
-                            ),
-                            onPressed: () async {
-                              getpopup(mp.keys.elementAt(index));
-                            },
-                          ))
-                        : (ElevatedButton(
-                            child: const Text('Join'),
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(90, 60),
-                              primary: Colors.green,
-                            ),
-                            onPressed: () async {
-                              print(linkCnt.text);
-                              openlink(linkCnt.text);
-                            },
-                          )),
+                    trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                      (mp.values.elementAt(index)['state'] == 1
+                          ? (Padding(
+                              padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              child: ElevatedButton(
+                                child: const Text('Accept'),
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: Size(90, 60),
+                                  primary: Colors.orange,
+                                ),
+                                onPressed: () async {
+                                  getpopup(mp.keys.elementAt(index));
+                                },
+                              )))
+                          : (Padding(
+                              padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              child: ElevatedButton(
+                                child: const Text('Join'),
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: Size(90, 60),
+                                  primary: Colors.green,
+                                ),
+                                onPressed: () async {
+                                  print(linkCnt.text);
+                                  openlink(linkCnt.text);
+                                },
+                              )))),
+                      mp.values.elementAt(index)['state'] == 2
+                          ? (Padding(
+                              padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              child: ElevatedButton(
+                                child: const Text('Done'),
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: Size(90, 60),
+                                  primary: Colors.orange,
+                                ),
+                                onPressed: () async {
+                                  closeCounselling(mp.keys.elementAt(index));
+                                },
+                              )))
+                          : Text('')
+                    ]),
                     children: [
                       Row(
                           mainAxisAlignment: MainAxisAlignment.center,

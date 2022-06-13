@@ -50,7 +50,7 @@ class _Login extends State<Login> {
           constraints: BoxConstraints.expand(),
           decoration: const BoxDecoration(
             image: DecorationImage(
-                image: AssetImage("images/final.png"),
+                image: AssetImage("assets/images/final.png"),
                 fit: BoxFit.cover),
           ),
         ),
@@ -64,7 +64,7 @@ class _Login extends State<Login> {
                 height: 288.45 * SizeConfig.safeBlockVertical * 1.3,
                 decoration: BoxDecoration(
                     image: DecorationImage(
-                        image: AssetImage('images/Logo.png')))),
+                        image: AssetImage('assets/images/Logo.png')))),
             SizedBox(height: 10 * SizeConfig.safeBlockVertical),
             Material(
               color: Colors.transparent,
