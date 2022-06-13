@@ -44,8 +44,18 @@ class _RequestScreen extends State<RequestScreen> {
   Widget languageFilter() =>
       SearchWidget(text: lang, onChanged: filterByLanguage, hintText: 'en');
 
-  void filterByLanguage(String str) {
+  void filterByLanguage(String str) async {
     str = str.toLowerCase();
+
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('activerequests');
+    DatabaseEvent _event = await _testRef.once();
+
+    Map<String, dynamic> tmp1 = {};
+    activeRequests = _event.snapshot.value as Map<String, dynamic>;
+    tmp1 = _event.snapshot.value as Map<String, dynamic>;
+
+    print(tmp1);
 
     setState(() {
       lang = str;
@@ -54,10 +64,10 @@ class _RequestScreen extends State<RequestScreen> {
     Map<String, dynamic> tmp = {};
 
     mp.forEach((k, v) {
-      String language = v["language"];
+      String language = tmp1[k]["language"];
       language = language.toLowerCase();
 
-      if (language.contains(lang)) {
+      if (lang.contains(language)) {
         tmp[k] = v;
       }
     });
