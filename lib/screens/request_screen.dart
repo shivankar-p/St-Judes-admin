@@ -1,3 +1,5 @@
+import 'dart:js_util';
+
 import 'package:admin_app/screens/loggedIn.dart';
 import 'package:admin_app/screens/notify_screen.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +33,7 @@ class _RequestScreen extends State<RequestScreen> {
   List<int> requestLength = [];
   List<String> prevrequestLength = List.filled(100000, '0');
   String query = '';
+  String lang = '';
 
   Widget buildSearch() => SearchWidget(
         text: query,
@@ -38,8 +41,35 @@ class _RequestScreen extends State<RequestScreen> {
         onChanged: searchUser,
       );
 
+  Widget languageFilter() =>
+      SearchWidget(text: lang, onChanged: filterByLanguage, hintText: 'en');
+
+  void filterByLanguage(String str) {
+    str = str.toLowerCase();
+
+    setState(() {
+      lang = str;
+    });
+
+    Map<String, dynamic> tmp = {};
+
+    mp.forEach((k, v) {
+      String language = v["language"];
+      language = language.toLowerCase();
+
+      if (language.contains(lang)) {
+        tmp[k] = v;
+      }
+    });
+
+    setState(() {
+      mp = tmp;
+    });
+
+    // print(mp);
+  }
+
   void searchUser(String str) {
-    //print("Searching User\n\n");
     str = str.toLowerCase();
 
     setState(() {
@@ -52,23 +82,25 @@ class _RequestScreen extends State<RequestScreen> {
       String name = v["name"];
       name = name.toLowerCase();
 
-      if (k.contains(query) || name.contains(query)) {
+      String language = v["language"];
+      language = language.toLowerCase();
+
+      if (k.contains(query) ||
+          name.contains(query) ||
+          language.contains(query)) {
         tmp[k] = v;
       }
     });
 
-    //print(tmp);
-
     setState(() {
       mp = tmp;
     });
-
-    //print(mp);
-    //print("before");
   }
 
   void _getActiverequests() async {
-    if (query.isEmpty) {
+    print("hello + $query " + " " + lang);
+    print(mp);
+    if (query.isEmpty && lang.isEmpty) {
       DatabaseReference _testRef =
           FirebaseDatabase.instance.ref('activerequests');
       DatabaseEvent _event = await _testRef.once();
@@ -266,6 +298,9 @@ class _RequestScreen extends State<RequestScreen> {
           slivers: <Widget>[
             SliverToBoxAdapter(
               child: buildSearch(),
+            ),
+            SliverToBoxAdapter(
+              child: languageFilter(),
             ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
