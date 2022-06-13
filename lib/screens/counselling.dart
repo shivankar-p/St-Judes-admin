@@ -20,6 +20,7 @@ class _CounsellingScreen extends State<CounsellingScreen> {
   //const WeeklyForecastList({Key? key}) : super(key: key);
   Map<String, dynamic> mp = {};
   Map<String, dynamic> mp2 = {};
+  Map<String, dynamic> contact = {};
 
   String query = '';
 
@@ -90,8 +91,17 @@ class _CounsellingScreen extends State<CounsellingScreen> {
       print('empty');
       DatabaseReference _testRef = FirebaseDatabase.instance.ref('counselling');
       DatabaseEvent _event = await _testRef.once();
-      mp = _event.snapshot.value as Map<String, dynamic>;
-      print(mp['12345']);
+
+      DatabaseReference _contactRef =
+          FirebaseDatabase.instance.ref('uidToPhone');
+      DatabaseEvent _cont = await _contactRef.once();
+      if (mounted && _event.snapshot.value != null && _cont.snapshot.value != null) {
+        setState(() {
+          mp = _event.snapshot.value as Map<String, dynamic>;
+          contact = _cont.snapshot.value as Map<String, dynamic>;
+        });
+      }
+
     }
   }
 
@@ -133,7 +143,6 @@ class _CounsellingScreen extends State<CounsellingScreen> {
         FirebaseDatabase.instance.ref('counselling/' + uid);
     _testRef.remove();
   }
-
 
   dynamic getpopup(String uid) {
     TextEditingController timeController = TextEditingController();
@@ -242,7 +251,7 @@ class _CounsellingScreen extends State<CounsellingScreen> {
                   TextEditingController linkCnt = TextEditingController();
                   TextEditingController timeCnt = TextEditingController();
                   TextEditingController uidCnt = TextEditingController();
-                  var name = getname(mp.keys.elementAt(index));
+                  var name = contact[mp.keys.elementAt(index)]['name'];
                   linkCnt.text = mp.values.elementAt(index)['link'];
                   timeCnt.text = mp.values.elementAt(index)['date'] +
                       '  ' +
@@ -251,44 +260,13 @@ class _CounsellingScreen extends State<CounsellingScreen> {
 
                   return ExpansionTile(
                     textColor: Colors.black,
-                    title: Padding(
-                        padding: EdgeInsets.fromLTRB(5, 20, 5, 20),
-                        child: FutureBuilder(
-                          future: name,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              print(
-                                  'There is an error ${snapshot.error.toString()}');
-                              return Text('Something went wrong');
-                            } else if (snapshot.hasData) {
-                              //return LoggedInScreen();
-                              return Text(snapshot.data.toString(),
-                                  style: TextStyle(fontSize: 25));
-                            } else {
-                              return CircularProgressIndicator();
-                            }
-                          },
-                        )),
-                    leading: FutureBuilder(
-                      future: name,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          print(
-                              'There is an error ${snapshot.error.toString()}');
-                          return Text('Something went wrong');
-                        } else if (snapshot.hasData) {
-                          return CircleAvatar(
-                            child: Text(
-                                snapshot.data.toString()[0] +
-                                    snapshot.data.toString()[1],
-                                style: TextStyle(color: Colors.black)),
-                            radius: 70,
-                            backgroundColor: Colors.orange.shade200,
-                          );
-                        } else {
-                          return CircularProgressIndicator();
-                        }
-                      },
+                    title:
+                        Text(name.toString(), style: TextStyle(fontSize: 25)),
+                    leading: CircleAvatar(
+                      child: Text(name.toString()[0] + name.toString()[1],
+                          style: TextStyle(color: Colors.black)),
+                      radius: 70,
+                      backgroundColor: Colors.orange.shade200,
                     ),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                       (mp.values.elementAt(index)['state'] == 1

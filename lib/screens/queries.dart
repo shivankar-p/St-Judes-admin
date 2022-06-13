@@ -17,6 +17,7 @@ class _QueriesScreen extends State<QueriesScreen> {
   //const WeeklyForecastList({Key? key}) : super(key: key);
   Map<String, dynamic> mp = {};
   Map<String, dynamic> mp2 = {};
+  Map<String, dynamic> contact = {};
 
   String query = '';
 
@@ -59,7 +60,17 @@ class _QueriesScreen extends State<QueriesScreen> {
     if (query.isEmpty) {
       DatabaseReference _testRef = FirebaseDatabase.instance.ref('queries');
       DatabaseEvent _event = await _testRef.once();
-      mp = _event.snapshot.value as Map<String, dynamic>;
+      DatabaseReference _contactRef =
+          FirebaseDatabase.instance.ref('uidToPhone');
+      DatabaseEvent _cont = await _contactRef.once();
+      if (mounted &&
+          _event.snapshot.value != null &&
+          _cont.snapshot.value != null) {
+        setState(() {
+          mp = _event.snapshot.value as Map<String, dynamic>;
+          contact = _cont.snapshot.value as Map<String, dynamic>;
+        });
+      }
     }
   }
 
@@ -105,48 +116,19 @@ class _QueriesScreen extends State<QueriesScreen> {
 
                   TextEditingController phCnt = TextEditingController();
                   TextEditingController uidCnt = TextEditingController();
-                  var name = getname(mp.values.elementAt(index)['uid']);
-                  var phone = getphone(mp.values.elementAt(index)['uid']);
+                  var name = contact[mp.values.elementAt(index)['uid']]['name'];
+                  var phone = contact[mp.values.elementAt(index)['uid']]['phone'];
                   uidCnt.text = mp.values.elementAt(index)['uid'];
 
                   return ExpansionTile(
                     textColor: Colors.black,
-                    title: FutureBuilder(
-                      future: name,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          print(
-                              'There is an error ${snapshot.error.toString()}');
-                          return Text('Something went wrong');
-                        } else if (snapshot.hasData) {
-                          //return LoggedInScreen();
-                          return Text(snapshot.data.toString(),
-                              style: TextStyle(fontSize: 25));
-                        } else {
-                          return CircularProgressIndicator();
-                        }
-                      },
-                    ),
-                    leading: FutureBuilder(
-                      future: name,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          print(
-                              'There is an error ${snapshot.error.toString()}');
-                          return Text('Something went wrong');
-                        } else if (snapshot.hasData) {
-                          return CircleAvatar(
-                            child: Text(
-                                snapshot.data.toString()[0] +
-                                    snapshot.data.toString()[1],
-                                style: TextStyle(color: Colors.black)),
-                            radius: 70,
-                            backgroundColor: Colors.orange.shade200,
-                          );
-                        } else {
-                          return CircularProgressIndicator();
-                        }
-                      },
+                    title:
+                        Text(name.toString(), style: TextStyle(fontSize: 25)),
+                    leading: CircleAvatar(
+                      child: Text(name.toString()[0] + name.toString()[1],
+                          style: TextStyle(color: Colors.black)),
+                      radius: 70,
+                      backgroundColor: Colors.orange.shade200,
                     ),
                     subtitle: Text(mp.values.elementAt(index)['msg']),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -172,29 +154,15 @@ class _QueriesScreen extends State<QueriesScreen> {
                                 )),
                             Container(
                                 width: 200,
-                                child: FutureBuilder(
-                                    future: phone,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasError) {
-                                        print(
-                                            'There is an error ${snapshot.error.toString()}');
-                                        return Text('Something went wrong');
-                                      } else if (snapshot.hasData) {
-                                        phCnt.text = snapshot.data.toString();
-                                        return TextFormField(
-                                          enabled: false,
-                                          decoration: InputDecoration(
-                                              contentPadding:
-                                                  EdgeInsets.fromLTRB(
-                                                      10, 5, 5, 5),
-                                              icon: Icon(Icons.phone),
-                                              labelText: 'Phone'),
-                                          controller: phCnt,
-                                        );
-                                      } else {
-                                        return CircularProgressIndicator();
-                                      }
-                                    })),
+                                child: TextFormField(
+                                  enabled: false,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.fromLTRB(10, 5, 5, 5),
+                                      icon: Icon(Icons.phone),
+                                      labelText: 'Phone'),
+                                  controller: phCnt,
+                                )),
                           ])
                     ],
                   );
