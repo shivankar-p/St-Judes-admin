@@ -33,6 +33,7 @@ class _RequestScreen extends State<RequestScreen> {
   List<int> requestLength = [];
   List<String> prevrequestLength = List.filled(100000, '0');
   String query = '';
+  bool isSorted = false;
 
   Widget buildSearch() => SearchWidget(
         text: query,
@@ -74,6 +75,61 @@ class _RequestScreen extends State<RequestScreen> {
 
   //   // print(mp);
   // }
+  // Future<Map<int, int>> prevLength() async {
+  //   Map<int, int> prevR = {};
+  //   int cnt = 0;
+
+  //   mp.forEach((key, value) async {
+  //     DatabaseReference _testRef =
+  //         FirebaseDatabase.instance.ref('requests/' + key);
+  //     DatabaseEvent _event = await _testRef.once();
+  //     if (_event.snapshot.value != null) {
+  //       List<dynamic> lst = _event.snapshot.value as List<dynamic>;
+  //       if (mounted) {
+  //         setState(() {
+  //           prevrequestLength[cnt] = lst.length.toString();
+  //           prevR[cnt] = lst.length;
+  //         });
+  //         print("At $cnt $key");
+  //         print(prevR);
+  //       }
+  //     }
+  //     cnt++;
+  //   });
+
+  //   return prevR;
+  // }
+
+  void sortByNumberOfRequests() async {
+    int len = mp.length;
+    print(len);
+    Map<String, int> hash = {};
+
+    int cnt = 0;
+    mp.forEach((key, value) {
+      hash[key] = int.parse(prevrequestLength[cnt]);
+      cnt++;
+    });
+
+    var sortMapByValue = Map.fromEntries(
+        hash.entries.toList()..sort((e1, e2) => e1.value.compareTo(e2.value)));
+
+    print(sortMapByValue);
+
+    Map<String, dynamic> tmp = {};
+
+    cnt = 0;
+    sortMapByValue.forEach((key, value) {
+      tmp[key] = mp[key];
+      prevrequestLength[cnt] = value.toString();
+      cnt++;
+    });
+
+    setState(() {
+      mp = tmp;
+      isSorted = true;
+    });
+  }
 
   void searchUser(String str) async {
     str = str.toLowerCase();
@@ -112,7 +168,7 @@ class _RequestScreen extends State<RequestScreen> {
   }
 
   void _getActiverequests() async {
-    if (query.isEmpty) {
+    if (query.isEmpty && !isSorted) {
       DatabaseReference _testRef =
           FirebaseDatabase.instance.ref('activerequests');
       DatabaseEvent _event = await _testRef.once();
@@ -163,6 +219,8 @@ class _RequestScreen extends State<RequestScreen> {
 
       // print(mp);
     }
+
+    if (isSorted) sortByNumberOfRequests();
   }
 
   int getChildCount() {
@@ -297,6 +355,7 @@ class _RequestScreen extends State<RequestScreen> {
   Widget build(BuildContext context) {
     //BuildContext parentcontext = context;
     _getActiverequests();
+    // sortByNumberOfRequests();
     final DateTime currentDate = DateTime.now();
     final TextTheme textTheme = Theme.of(context).textTheme;
 
@@ -339,10 +398,10 @@ class _RequestScreen extends State<RequestScreen> {
                                             CrossAxisAlignment.start,
                                         children: <Widget>[
                               CheckboxListTile(
-                                value: false,
+                                value: this.isSorted,
                                 title: Text("least number of requests made"),
                                 onChanged: (bool? value) {
-                                  value = true;
+                                  this.isSorted = true;
                                 },
                               ),
                               CheckboxListTile(
