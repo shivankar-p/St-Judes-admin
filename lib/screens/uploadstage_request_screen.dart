@@ -289,7 +289,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
                                 value: this.isSorted,
                                 title: Text("least number of requests made"),
                                 onChanged: (bool? value) {
-                                  this.isSorted = true;
+                                  this.isSorted = !this.isSorted;
                                 },
                               ),
                               CheckboxListTile(
