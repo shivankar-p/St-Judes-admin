@@ -32,16 +32,55 @@ class _RequestScreen extends State<RequestScreen> {
   List<int> requestLength = [];
   List<String> prevrequestLength = List.filled(100000, '0');
   String query = '';
+  bool isSorted = false;
 
   Widget buildSearch() => SearchWidget(
         text: query,
-        hintText: 'ID or User name',
+        hintText: 'ID or User name or Language',
         onChanged: searchUser,
       );
 
-  void searchUser(String str) {
-    //print("Searching User\n\n");
+  void sortByNumberOfRequests() async {
+    int len = mp.length;
+    print(len);
+    Map<String, int> hash = {};
+
+    int cnt = 0;
+    mp.forEach((key, value) {
+      hash[key] = int.parse(prevrequestLength[cnt]);
+      cnt++;
+    });
+
+    var sortMapByValue = Map.fromEntries(
+        hash.entries.toList()..sort((e1, e2) => e1.value.compareTo(e2.value)));
+
+    print(sortMapByValue);
+
+    Map<String, dynamic> tmp = {};
+
+    cnt = 0;
+    sortMapByValue.forEach((key, value) {
+      tmp[key] = mp[key];
+      prevrequestLength[cnt] = value.toString();
+      cnt++;
+    });
+
+    setState(() {
+      mp = tmp;
+      isSorted = true;
+    });
+  }
+
+  void searchUser(String str) async {
     str = str.toLowerCase();
+
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('activerequests');
+    DatabaseEvent _event = await _testRef.once();
+
+    Map<String, dynamic> tmp1 = {};
+    activeRequests = _event.snapshot.value as Map<String, dynamic>;
+    tmp1 = _event.snapshot.value as Map<String, dynamic>;
 
     setState(() {
       query = str;
@@ -53,23 +92,23 @@ class _RequestScreen extends State<RequestScreen> {
       String name = v["name"];
       name = name.toLowerCase();
 
-      if (k.contains(query) || name.contains(query)) {
+      String language = tmp1[k]["language"];
+      language = language.toLowerCase();
+
+      if (k.contains(query) ||
+          name.contains(query) ||
+          query.contains(language)) {
         tmp[k] = v;
       }
     });
 
-    //print(tmp);
-
     setState(() {
       mp = tmp;
     });
-
-    //print(mp);
-    //print("before");
   }
 
   void _getActiverequests() async {
-    if (query.isEmpty) {
+    if (query.isEmpty && !isSorted) {
       DatabaseReference _testRef =
           FirebaseDatabase.instance.ref('activerequests');
       DatabaseEvent _event = await _testRef.once();
@@ -119,8 +158,9 @@ class _RequestScreen extends State<RequestScreen> {
       // mp["12000"] = {"name": "Someone", "phone": "+090909090", "requests": "1"};
 
       // print(mp);
-    } else
-      print("Query not empty!!");
+    }
+
+    if (isSorted) sortByNumberOfRequests();
   }
 
   int getChildCount() {
@@ -243,13 +283,12 @@ class _RequestScreen extends State<RequestScreen> {
 
     String translated_msg = await translator.translate(msg, 'en', lang);
 
-    
     if (_event.snapshot.value != null)
-    _testRef.push().set({
-      'date': date,
-      'msg': translated_msg,
-      'time': time,
-    });
+      _testRef.push().set({
+        'date': date,
+        'msg': translated_msg,
+        'time': time,
+      });
   }
 
   @override
@@ -270,6 +309,140 @@ class _RequestScreen extends State<RequestScreen> {
             SliverToBoxAdapter(
               child: buildSearch(),
             ),
+            SliverToBoxAdapter(
+                child: ElevatedButton(
+                    child: const Text('Sort'),
+                    onPressed: () {
+                      TextEditingController catController =
+                          TextEditingController();
+                      TextEditingController amtController =
+                          TextEditingController();
+                      TextEditingController descController =
+                          TextEditingController();
+                      TextEditingController remarkController =
+                          TextEditingController();
+
+                      final popup = BeautifulPopup(
+                        context: context,
+                        template: TemplateTerm,
+                      );
+
+                      popup.show(
+                        title: "Sort",
+                        content: Scrollbar(
+                            child: SingleChildScrollView(
+                                child: Form(
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                              CheckboxListTile(
+                                value: this.isSorted,
+                                title: Text("least number of requests made"),
+                                onChanged: (bool? value) {
+                                  this.isSorted = true;
+                                },
+                              ),
+                              CheckboxListTile(
+                                value: false,
+                                title: Text("Date"),
+                                onChanged: (bool? value) {
+                                  value = true;
+                                },
+                              ),
+                              CheckboxListTile(
+                                value: false,
+                                title: Text("Maximum requests made"),
+                                onChanged: (bool? value) {
+                                  value = true;
+                                },
+                              ),
+                            ])))),
+                        close: Text(''),
+                        barrierDismissible: true,
+                        actions: [
+                          popup.button(
+                            label: 'Save',
+                            onPressed: () {
+                              /* Navigator.pop(context);
+                                          RequestScreen(); */
+                              // filterByLanguage(catController.text);
+                            },
+                          ),
+                        ],
+                        // bool barrierDismissible = false,
+                        // Widget close,
+                      );
+                    })),
+            SliverToBoxAdapter(
+                child: ElevatedButton(
+                    child: const Text('Filters'),
+                    onPressed: () {
+                      TextEditingController catController =
+                          TextEditingController();
+                      TextEditingController amtController =
+                          TextEditingController();
+                      TextEditingController descController =
+                          TextEditingController();
+                      TextEditingController remarkController =
+                          TextEditingController();
+
+                      final popup = BeautifulPopup(
+                        context: context,
+                        template: TemplateTerm,
+                      );
+
+                      popup.show(
+                        title: "FilterView",
+                        content: Scrollbar(
+                            child: SingleChildScrollView(
+                                child: Form(
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  icon: const Icon(Icons.category),
+                                  hintText: 'English',
+                                  labelText: 'Language',
+                                ),
+                                controller: catController,
+                              ),
+                              TextFormField(
+                                  decoration: const InputDecoration(
+                                    icon: const Icon(Icons.currency_rupee),
+                                    hintText: '10000',
+                                    labelText: 'Maximum Amount',
+                                  ),
+                                  controller: amtController,
+                                  keyboardType: TextInputType.number),
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  icon: const Icon(Icons.description),
+                                  hintText: '12',
+                                  labelText: 'Number Of Requests made',
+                                ),
+                                controller: descController,
+                                maxLines: null,
+                              ),
+                            ])))),
+                        close: Text(''),
+                        barrierDismissible: true,
+                        actions: [
+                          popup.button(
+                            label: 'Save',
+                            onPressed: () {
+                              /* Navigator.pop(context);
+                                          RequestScreen(); */
+                              // filterByLanguage(catController.text);
+                            },
+                          ),
+                        ],
+                        // bool barrierDismissible = false,
+                        // Widget close,
+                      );
+                    })),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
