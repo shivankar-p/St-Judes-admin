@@ -9,6 +9,7 @@ import '../utils/audio.dart';
 import 'package:intl/intl.dart';
 import '../widget/search_widget.dart';
 import '../api/translation_api.dart';
+
 class UploadStageScreen extends StatefulWidget {
   @override
   _UploadStageScreen createState() {
@@ -32,12 +33,20 @@ class _UploadStageScreen extends State<UploadStageScreen> {
 
   Widget buildSearch() => SearchWidget(
         text: query,
-        hintText: 'ID or User name',
+        hintText: 'ID or User name or Language',
         onChanged: searchUser,
       );
 
-  void searchUser(String str) {
+  void searchUser(String str) async {
     str = str.toLowerCase();
+
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('activerequests');
+    DatabaseEvent _event = await _testRef.once();
+
+    Map<String, dynamic> tmp1 = {};
+    activeRequests = _event.snapshot.value as Map<String, dynamic>;
+    tmp1 = _event.snapshot.value as Map<String, dynamic>;
 
     setState(() {
       query = str;
@@ -49,19 +58,19 @@ class _UploadStageScreen extends State<UploadStageScreen> {
       String name = v["name"];
       name = name.toLowerCase();
 
-      if (k.contains(query) || name.contains(query)) {
+      String language = tmp1[k]["language"];
+      language = language.toLowerCase();
+
+      if (k.contains(query) ||
+          name.contains(query) ||
+          query.contains(language)) {
         tmp[k] = v;
       }
     });
 
-    //print(tmp);
-
     setState(() {
       mp = tmp;
     });
-
-    //print(mp);
-    //print("before");
   }
 
   void _getActiverequests() async {
@@ -216,7 +225,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
         FirebaseDatabase.instance.ref('notifications/' + uid);
     DatabaseEvent _event = await _testRef.once();
 
-     DatabaseReference _langRef =
+    DatabaseReference _langRef =
         FirebaseDatabase.instance.ref('uidToPhone/' + uid + '/language');
     DatabaseEvent _lang = await _langRef.once();
 
@@ -254,6 +263,140 @@ class _UploadStageScreen extends State<UploadStageScreen> {
             SliverToBoxAdapter(
               child: buildSearch(),
             ),
+            SliverToBoxAdapter(
+                child: ElevatedButton(
+                    child: const Text('Sort'),
+                    onPressed: () {
+                      TextEditingController catController =
+                          TextEditingController();
+                      TextEditingController amtController =
+                          TextEditingController();
+                      TextEditingController descController =
+                          TextEditingController();
+                      TextEditingController remarkController =
+                          TextEditingController();
+
+                      final popup = BeautifulPopup(
+                        context: context,
+                        template: TemplateTerm,
+                      );
+
+                      popup.show(
+                        title: "Sort",
+                        content: Scrollbar(
+                            child: SingleChildScrollView(
+                                child: Form(
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                              CheckboxListTile(
+                                value: false,
+                                title: Text("least number of requests made"),
+                                onChanged: (bool? value) {
+                                  value = true;
+                                },
+                              ),
+                              CheckboxListTile(
+                                value: false,
+                                title: Text("Date"),
+                                onChanged: (bool? value) {
+                                  value = true;
+                                },
+                              ),
+                              CheckboxListTile(
+                                value: false,
+                                title: Text("Maximum requests made"),
+                                onChanged: (bool? value) {
+                                  value = true;
+                                },
+                              ),
+                            ])))),
+                        close: Text(''),
+                        barrierDismissible: true,
+                        actions: [
+                          popup.button(
+                            label: 'Save',
+                            onPressed: () {
+                              /* Navigator.pop(context);
+                                          RequestScreen(); */
+                              // filterByLanguage(catController.text);
+                            },
+                          ),
+                        ],
+                        // bool barrierDismissible = false,
+                        // Widget close,
+                      );
+                    })),
+            SliverToBoxAdapter(
+                child: ElevatedButton(
+                    child: const Text('Filters'),
+                    onPressed: () {
+                      TextEditingController catController =
+                          TextEditingController();
+                      TextEditingController amtController =
+                          TextEditingController();
+                      TextEditingController descController =
+                          TextEditingController();
+                      TextEditingController remarkController =
+                          TextEditingController();
+
+                      final popup = BeautifulPopup(
+                        context: context,
+                        template: TemplateTerm,
+                      );
+
+                      popup.show(
+                        title: "FilterView",
+                        content: Scrollbar(
+                            child: SingleChildScrollView(
+                                child: Form(
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  icon: const Icon(Icons.category),
+                                  hintText: 'English',
+                                  labelText: 'Language',
+                                ),
+                                controller: catController,
+                              ),
+                              TextFormField(
+                                  decoration: const InputDecoration(
+                                    icon: const Icon(Icons.currency_rupee),
+                                    hintText: '10000',
+                                    labelText: 'Maximum Amount',
+                                  ),
+                                  controller: amtController,
+                                  keyboardType: TextInputType.number),
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  icon: const Icon(Icons.description),
+                                  hintText: '12',
+                                  labelText: 'Number Of Requests made',
+                                ),
+                                controller: descController,
+                                maxLines: null,
+                              ),
+                            ])))),
+                        close: Text(''),
+                        barrierDismissible: true,
+                        actions: [
+                          popup.button(
+                            label: 'Save',
+                            onPressed: () {
+                              /* Navigator.pop(context);
+                                          RequestScreen(); */
+                              // filterByLanguage(catController.text);
+                            },
+                          ),
+                        ],
+                        // bool barrierDismissible = false,
+                        // Widget close,
+                      );
+                    })),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {

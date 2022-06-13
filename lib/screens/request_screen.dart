@@ -33,7 +33,6 @@ class _RequestScreen extends State<RequestScreen> {
   List<int> requestLength = [];
   List<String> prevrequestLength = List.filled(100000, '0');
   String query = '';
-  String lang = '';
 
   Widget buildSearch() => SearchWidget(
         text: query,
@@ -41,43 +40,40 @@ class _RequestScreen extends State<RequestScreen> {
         onChanged: searchUser,
       );
 
-  Widget languageFilter() =>
-      SearchWidget(text: lang, onChanged: filterByLanguage, hintText: 'en');
+  // void filterByLanguage(String str) async {
+  //   str = str.toLowerCase();
 
-  void filterByLanguage(String str) async {
-    str = str.toLowerCase();
+  //   DatabaseReference _testRef =
+  //       FirebaseDatabase.instance.ref('activerequests');
+  //   DatabaseEvent _event = await _testRef.once();
 
-    DatabaseReference _testRef =
-        FirebaseDatabase.instance.ref('activerequests');
-    DatabaseEvent _event = await _testRef.once();
+  //   Map<String, dynamic> tmp1 = {};
+  //   activeRequests = _event.snapshot.value as Map<String, dynamic>;
+  //   tmp1 = _event.snapshot.value as Map<String, dynamic>;
 
-    Map<String, dynamic> tmp1 = {};
-    activeRequests = _event.snapshot.value as Map<String, dynamic>;
-    tmp1 = _event.snapshot.value as Map<String, dynamic>;
+  //   // print(tmp1);
 
-    // print(tmp1);
+  //   setState(() {
+  //     lang = str;
+  //   });
 
-    setState(() {
-      lang = str;
-    });
+  //   Map<String, dynamic> tmp = {};
 
-    Map<String, dynamic> tmp = {};
+  //   mp.forEach((k, v) {
+  //     String language = tmp1[k]["language"];
+  //     language = language.toLowerCase();
 
-    mp.forEach((k, v) {
-      String language = tmp1[k]["language"];
-      language = language.toLowerCase();
+  //     if (lang.contains(language)) {
+  //       tmp[k] = v;
+  //     }
+  //   });
 
-      if (lang.contains(language)) {
-        tmp[k] = v;
-      }
-    });
+  //   setState(() {
+  //     mp = tmp;
+  //   });
 
-    setState(() {
-      mp = tmp;
-    });
-
-    // print(mp);
-  }
+  //   // print(mp);
+  // }
 
   void searchUser(String str) async {
     str = str.toLowerCase();
@@ -116,9 +112,7 @@ class _RequestScreen extends State<RequestScreen> {
   }
 
   void _getActiverequests() async {
-    print("hello + $query " + " " + lang);
-    print(mp);
-    if (query.isEmpty && lang.isEmpty) {
+    if (query.isEmpty) {
       DatabaseReference _testRef =
           FirebaseDatabase.instance.ref('activerequests');
       DatabaseEvent _event = await _testRef.once();
@@ -168,8 +162,7 @@ class _RequestScreen extends State<RequestScreen> {
       // mp["12000"] = {"name": "Someone", "phone": "+090909090", "requests": "1"};
 
       // print(mp);
-    } else
-      print("Query not empty!!");
+    }
   }
 
   int getChildCount() {
