@@ -11,7 +11,6 @@ import '../widget/search_widget.dart';
 import '../api/translation_api.dart';
 import 'package:intl/intl.dart';
 
-
 class Constants {
   static const String inc = 'Least no of requests';
   static const String Date = 'Request Date';
@@ -48,8 +47,16 @@ class _UploadStageScreen extends State<UploadStageScreen> {
         onChanged: searchUser,
       );
 
-  void searchUser(String str) {
+  void searchUser(String str) async {
     str = str.toLowerCase();
+
+    DatabaseReference _testRef =
+        FirebaseDatabase.instance.ref('activerequests');
+    DatabaseEvent _event = await _testRef.once();
+
+    Map<String, dynamic> tmp1 = {};
+    activeRequests = _event.snapshot.value as Map<String, dynamic>;
+    tmp1 = _event.snapshot.value as Map<String, dynamic>;
 
     setState(() {
       query = str;
@@ -61,19 +68,19 @@ class _UploadStageScreen extends State<UploadStageScreen> {
       String name = v["name"];
       name = name.toLowerCase();
 
-      if (k.contains(query) || name.contains(query)) {
+      String language = tmp1[k]["language"];
+      language = language.toLowerCase();
+
+      if (k.contains(query) ||
+          name.contains(query) ||
+          query.contains(language)) {
         tmp[k] = v;
       }
     });
 
-    //print(tmp);
-
     setState(() {
       mp = tmp;
     });
-
-    //print(mp);
-    //print("before");
   }
 
   void _getActiverequests() async {
