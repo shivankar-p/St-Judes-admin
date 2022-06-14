@@ -495,13 +495,14 @@ class _RequestScreen extends State<RequestScreen> {
                                   context: context,
                                   template: TemplateTerm,
                                 );
-
                                 popup.show(
                                   title: mp.values.elementAt(index)['name'] +
                                       '\'s request logs',
                                   content: Scrollbar(
                                       child: SingleChildScrollView(
-                                          child: Form(
+                                          child: Theme(
+                                            data: ThemeData(primarySwatch: Colors.orange),
+                                            child: Form(
                                               child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
@@ -541,7 +542,7 @@ class _RequestScreen extends State<RequestScreen> {
                                           controller: remarkController,
                                           maxLines: null,
                                         )
-                                      ])))),
+                                      ]))))),
                                   close: Text(''),
                                   barrierDismissible: true,
                                   actions: [
