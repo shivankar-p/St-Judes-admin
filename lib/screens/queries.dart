@@ -117,8 +117,10 @@ class _QueriesScreen extends State<QueriesScreen> {
                   TextEditingController phCnt = TextEditingController();
                   TextEditingController uidCnt = TextEditingController();
                   var name = contact[mp.values.elementAt(index)['uid']]['name'];
-                  var phone = contact[mp.values.elementAt(index)['uid']]['phone'];
+                  var phone =
+                      contact[mp.values.elementAt(index)['uid']]['phone'];
                   uidCnt.text = mp.values.elementAt(index)['uid'];
+                  phCnt.text = phone;
 
                   return ExpansionTile(
                     textColor: Colors.black,

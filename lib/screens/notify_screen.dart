@@ -17,7 +17,7 @@ class ChatRoom extends StatefulWidget {
 class _ChatRoomState extends State<ChatRoom> {
   bool emptyString = true;
   TextEditingController _inputController = TextEditingController();
-  Map<String, dynamic>  chatMsgs = {};
+  Map<String, dynamic> chatMsgs = {};
   final DateTime currentDate = DateTime.now();
   void _getChats() async {
     DatabaseReference _testRef =
@@ -56,12 +56,9 @@ class _ChatRoomState extends State<ChatRoom> {
     });
   }
 
-  
-    
-
   Widget build(BuildContext context) {
     _getChats();
-    
+
     return Scaffold(
         appBar: AppBar(
           iconTheme: IconThemeData(
@@ -98,7 +95,7 @@ class _ChatRoomState extends State<ChatRoom> {
                     return MessageBubble(
                         chatMsgs[index]['date'].toString(),
                         true,
-                       chatMsgs[index]['msg'].toString());
+                      chatMsgs[index]['msg'].toString());
                   },
                   childCount: chatMsgs.length,
                 )) */
@@ -106,18 +103,19 @@ class _ChatRoomState extends State<ChatRoom> {
             ),
           )),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
                 padding: EdgeInsets.only(
                   left: 8.0,
-                  top: 8.0,
-                  bottom: 8.0,
+                  top: 4.0,
+                  bottom: 4.0,
                   right: 6.0,
                 ),
                 child: Container(
-                  width: MediaQuery.of(context).size.width * 0.96,
-                  height: 20 * 2.5,
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: 20 * 1.8,
                   padding: EdgeInsets.only(
                     right: 10,
                     left: 10,
@@ -134,7 +132,7 @@ class _ChatRoomState extends State<ChatRoom> {
                       Padding(
                         padding: EdgeInsets.all(3.0),
                         child: Container(
-                          width: MediaQuery.of(context).size.width * 0.7,
+                          width: MediaQuery.of(context).size.width * 0.5,
                           height: 20 * 2.5,
                           child: TextField(
                             maxLines: null,

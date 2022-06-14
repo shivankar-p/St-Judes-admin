@@ -265,7 +265,7 @@ class _verifyScreen extends State<verifyScreen> {
         FirebaseDatabase.instance.ref('notifications/' + uid);
     DatabaseEvent _event = await _testRef.once();
 
-     DatabaseReference _langRef =
+    DatabaseReference _langRef =
         FirebaseDatabase.instance.ref('uidToPhone/' + uid + '/language');
     DatabaseEvent _lang = await _langRef.once();
 
@@ -275,13 +275,12 @@ class _verifyScreen extends State<verifyScreen> {
 
     String translated_msg = await translator.translate(msg, 'en', lang);
 
-    
     if (_event.snapshot.value != null)
-    _testRef.push().set({
-      'date': date,
-      'msg': translated_msg,
-      'time': time,
-    });
+      _testRef.push().set({
+        'date': date,
+        'msg': translated_msg,
+        'time': time,
+      });
   }
 
   String getExtension(url) {
@@ -356,8 +355,12 @@ class _verifyScreen extends State<verifyScreen> {
                     SizedBox(
                       width: 20,
                     ),
-                    Text((cur[index]+1).toString() + '/' + imgs.length.toString(),
-                    style: TextStyle(fontSize: 20),),
+                    Text(
+                      (cur[index] + 1).toString() +
+                          '/' +
+                          imgs.length.toString(),
+                      style: TextStyle(fontSize: 20),
+                    ),
                     SizedBox(
                       width: 20,
                     ),
@@ -457,7 +460,7 @@ class _verifyScreen extends State<verifyScreen> {
                       title: Row(
                         children: <Widget>[
                           Container(
-                              width: 1365,
+                              width: 700,
                               padding: EdgeInsets.fromLTRB(200, 5, 5, 5),
                               child: Padding(
                                   padding: EdgeInsets.all(20),
@@ -579,71 +582,70 @@ class _verifyScreen extends State<verifyScreen> {
                                                 builder:
                                                     (BuildContext context) {
                                                   return Theme(
-                                                    data: ThemeData(primarySwatch: Colors.orange),
-                                                    child: AlertDialog(
-                                                    content: Stack(
-                                                      children: <Widget>[
-                                                        Positioned(
-                                                          right: -40.0,
-                                                          top: -40.0,
-                                                          child: InkResponse(
-                                                            onTap: () {
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
-                                                            },
-                                                            child: CircleAvatar(
-                                                              child: Icon(
-                                                                  Icons.close),
-                                                              backgroundColor:
-                                                                  Colors.red,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Form(
-                                                          
-                                                          child: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: <Widget>[
-                                                              Padding(
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .all(
-                                                                            8.0),
+                                                      data: ThemeData(
+                                                          primarySwatch:
+                                                              Colors.orange),
+                                                      child: AlertDialog(
+                                                        content: Stack(
+                                                          children: <Widget>[
+                                                            Positioned(
+                                                              right: -40.0,
+                                                              top: -40.0,
+                                                              child:
+                                                                  InkResponse(
+                                                                onTap: () {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                },
                                                                 child:
-                                                                    TextFormField(
-                                                                  decoration:
-                                                                      const InputDecoration(
-                                                                    icon: const Icon(
-                                                                        Icons
-                                                                            .feedback),
-                                                                    hintText:
-                                                                        'Enter Request closing remarks',
-                                                                    labelText:
-                                                                        'Final Remarks',
-                                                                  ),
-                                                                  controller:
-                                                                      RemarkController,
+                                                                    CircleAvatar(
+                                                                  child: Icon(
+                                                                      Icons
+                                                                          .close),
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .red,
                                                                 ),
                                                               ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        8.0),
-                                                                child:
-                                                                    ElevatedButton(
-                                                                        style: ElevatedButton
-                                                                            .styleFrom(
+                                                            ),
+                                                            Form(
+                                                              child: Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                children: <
+                                                                    Widget>[
+                                                                  Padding(
+                                                                    padding:
+                                                                        EdgeInsets.all(
+                                                                            8.0),
+                                                                    child:
+                                                                        TextFormField(
+                                                                      decoration:
+                                                                          const InputDecoration(
+                                                                        icon: const Icon(
+                                                                            Icons.feedback),
+                                                                        hintText:
+                                                                            'Enter Request closing remarks',
+                                                                        labelText:
+                                                                            'Final Remarks',
+                                                                      ),
+                                                                      controller:
+                                                                          RemarkController,
+                                                                    ),
+                                                                  ),
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets.all(
+                                                                            8.0),
+                                                                    child: ElevatedButton(
+                                                                        style: ElevatedButton.styleFrom(
                                                                           primary:
                                                                               Colors.orange,
                                                                         ),
-                                                                        child: Text(
-                                                                            "Submit"),
-                                                                        onPressed:
-                                                                            () {
+                                                                        child: Text("Submit"),
+                                                                        onPressed: () {
                                                                           approveRequest(
                                                                               RemarkController.text);
                                                                           notify_user(
@@ -658,13 +660,13 @@ class _verifyScreen extends State<verifyScreen> {
                                                                             return LoggedInScreen();
                                                                           }));
                                                                         }),
-                                                              )
-                                                            ],
-                                                          ),
+                                                                  )
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                      ],
-                                                    ),
-                                                  ));
+                                                      ));
                                                 });
                                           })))
                                   : Text(''),

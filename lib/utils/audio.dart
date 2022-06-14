@@ -100,7 +100,7 @@ class _audio extends State<audio> with WidgetsBindingObserver {
             builder: (context, snapshot) {
               final positionData = snapshot.data;
               return Container(
-                  width: 500,
+                  width: 300,
                   child: SeekBar(
                     duration: positionData?.duration ?? Duration.zero,
                     position: positionData?.position ?? Duration.zero,

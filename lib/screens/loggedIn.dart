@@ -47,7 +47,7 @@ class _LoggedInScreenState extends State<LoggedInScreen>
     DatabaseEvent _event = await _testRef.once();
 
 
-     DatabaseReference _langRef =
+    DatabaseReference _langRef =
         FirebaseDatabase.instance.ref('uidToPhone/' + uid + '/language');
     DatabaseEvent _lang = await _langRef.once();
 

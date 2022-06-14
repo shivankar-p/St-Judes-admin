@@ -427,9 +427,10 @@ class _RequestScreen extends State<RequestScreen> {
                         ),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.all(20.0),
+                            padding: const EdgeInsets.only(left:5,top:20.0, bottom:20, right:20.0),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: 
+                              CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
                                   mp.values.elementAt(index)['name'],
