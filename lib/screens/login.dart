@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'loggedIn.dart';
+import '../main.dart';
 
 TextEditingController nameController = TextEditingController();
 TextEditingController passController = TextEditingController();
@@ -88,7 +89,9 @@ class _Login extends State<Login> {
                 borderRadius:
                     BorderRadius.circular(20 * SizeConfig.safeBlockVertical),
                 color: Color.fromARGB(255, 255, 255, 255)),
-            child: Column(
+            child: Theme(
+              data: ThemeData(primarySwatch: Colors.orange),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   Material(
@@ -148,7 +151,7 @@ class _Login extends State<Login> {
                       ),
                     ),
                   ),
-                  SizedBox(height:10),
+                  SizedBox(height: 10),
                   Container(
                       width: 150 * SizeConfig.blockSizeHorizontal,
                       height: 70 * SizeConfig.blockSizeVertical,
@@ -160,22 +163,22 @@ class _Login extends State<Login> {
                           ),
                           //Submit
                           onPressed: () {
-                            if(nameController.text == 'admin@gmail.com' && passController.text == 'admin')
-                            {
+                            if (nameController.text == 'admin@gmail.com' &&
+                                passController.text == 'admin') {
                               Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoggedInScreen()),
-                              (Route<dynamic> route) => false,
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MyApp(0)),
+                                (Route<dynamic> route) => false,
                               );
-                              }
+                            }
                           },
                           child: Text("Submit",
                               style: TextStyle(
                                   fontFamily: 'ProximaNovaRegular',
                                   fontSize: 20 * SizeConfig.blockSizeVertical,
                                   color: Color.fromARGB(255, 255, 255, 255)))))
-                ]))
+                ])))
       ])
     ]);
   }

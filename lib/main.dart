@@ -11,20 +11,43 @@ import 'controllers/MenuController.dart';
 import '/screens/main/main_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(MyApp());
+  runApp(MyApp(0));
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({Key? key}) : super(key: key);
+  //MyApp({Key? key}) : super(key: key);
+  final flag;
+  MyApp(this.flag);
 
   // This widget is the root of your application.
   final Future<FirebaseApp> _fbapp = Firebase.initializeApp();
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    if (flag == 0) {
+      return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Admin Panel',
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: bgColor,
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
+            .apply(bodyColor: Colors.white),
+        canvasColor: secondaryColor,
+      ),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (context) => MenuController(),
+          ),
+        ],
+        child: MainScreen(),
+      ),
+    );
+    } else
+      return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -62,6 +85,6 @@ class MyApp extends StatelessWidget {
           }
         },
       ),
-    );
+    );;
   }
 }

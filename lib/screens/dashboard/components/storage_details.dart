@@ -21,38 +21,55 @@ class StarageDetails extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Storage Details",
+            "Language Distribution",
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: FontWeight.w500,
+              color: Colors.black
             ),
           ),
           SizedBox(height: defaultPadding),
           Chart(),
           StorageInfoCard(
-            svgSrc: "assets/icons/Documents.svg",
-            title: "Documents Files",
-            amountOfFiles: "1.3GB",
-            numOfFiles: 1328,
+            svgSrc: Icon(
+              Icons.language,
+              color: primaryColor,
+            ),
+            title: "Hindi",
+            amountOfFiles: "44%",
           ),
           StorageInfoCard(
-            svgSrc: "assets/icons/media.svg",
-            title: "Media Files",
-            amountOfFiles: "15.3GB",
-            numOfFiles: 1328,
+            svgSrc: Icon(
+              Icons.language,
+              color: Color(0xFF26E5FF),
+            ),
+            title: "Bengali",
+            amountOfFiles: "23%",
           ),
           StorageInfoCard(
-            svgSrc: "assets/icons/folder.svg",
-            title: "Other Files",
-            amountOfFiles: "1.3GB",
-            numOfFiles: 1328,
+            svgSrc: Icon(
+              Icons.language,
+              color: Color(0xFFFFCF26),
+            ),
+            title: "Marathi",
+            amountOfFiles: "13%",
           ),
           StorageInfoCard(
-            svgSrc: "assets/icons/unknown.svg",
-            title: "Unknown",
-            amountOfFiles: "1.3GB",
-            numOfFiles: 140,
+            svgSrc: Icon(
+              Icons.language,
+              color: Color(0xFFEE2727),
+            ),
+            title: "Telugu",
+            amountOfFiles: "12%",
           ),
+          StorageInfoCard(
+            svgSrc: Icon(
+              Icons.language,
+              color: primaryColor.withOpacity(0.1),
+            ),
+            title: "Tamil",
+            amountOfFiles: "8%",
+          )
         ],
       ),
     );

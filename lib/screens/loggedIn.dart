@@ -139,7 +139,7 @@ class _LoggedInScreenState extends State<LoggedInScreen>
                           Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => MyApp()),
+                                  builder: (context) => MyApp(0)),
                               (Route<dynamic> route) => false,
                               );
                         },
