@@ -272,7 +272,7 @@ class _UploadStageScreen extends State<UploadStageScreen> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       scrollBehavior: const ConstantScrollBehavior(),
-      title: 'St Judes',
+      title: 'St Judes for Life',
       home: Scaffold(
         body: Scrollbar(
             child: CustomScrollView(

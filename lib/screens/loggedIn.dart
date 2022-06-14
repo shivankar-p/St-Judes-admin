@@ -92,7 +92,18 @@ class _LoggedInScreenState extends State<LoggedInScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("St Judes"),
+        title: Row(
+              children: [
+                  Image.asset(
+                 'assets/images/logo_black.png',
+                  fit: BoxFit.contain,
+                  height: 32,
+              ),
+              Container(
+                  padding: const EdgeInsets.all(8.0), child: Text('St Judes for Life'))
+            ],
+
+          ),
         elevation: 0.7,
         bottom: TabBar(
           controller: _tabController,
